@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5174/admin",
+  "loginUser": "admin",
+  "loginPassword": "admin123",
+  "executionArgs": {
+    "projectName": "client",
+    "projectPath": "d:\\Code\\petapeta\\tematik1306\\padang-pariaman-map\\client",
+    "testIds": [],
+    "additionalInstruction": "Backend API is at http://localhost:3000. Frontend production preview is at http://localhost:5174. Admin login route is /admin/login (NOT /login). Admin credentials: username=admin, password=admin123. The public map is at /. All admin pages are under /admin/*.",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-oy1J0yT934NRGR2pYKel0DJHy-eurPep8beoDjafqXWEd9jZA6U4BM7YcOfD9pNUfRex1VkCDgc4Twp10wwEeaAdKNEw7zBMUKc3WDukn2k83SvWKQwE10YlZYuo82qy6T4"
+    }
+  },
+  "serverPort": 53947
+}

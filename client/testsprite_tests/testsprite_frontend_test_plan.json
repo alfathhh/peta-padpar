@@ -1,0 +1,1166 @@
+[
+  {
+    "id": "TC001",
+    "title": "Sign in to the admin dashboard",
+    "description": "This test verifies that an admin can log in and land on the protected dashboard to begin management tasks.",
+    "category": "Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the admin dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard summary content is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Log in and reach the protected admin dashboard",
+    "description": "An admin user can sign in and land on the protected dashboard successfully.",
+    "category": "Admin Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page is protected after sign in"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Browse the public map and view a marker popup",
+    "description": "A public visitor can filter the map and open an infrastructure popup that shows the expected location details.",
+    "category": "Public Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a category filter to show matching infrastructure markers"
+      },
+      {
+        "type": "action",
+        "description": "Select a Kecamatan"
+      },
+      {
+        "type": "action",
+        "description": "Select a Nagari"
+      },
+      {
+        "type": "action",
+        "description": "Select a Korong"
+      },
+      {
+        "type": "action",
+        "description": "Click a visible infrastructure marker"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the infrastructure popup is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the popup shows the location details"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Open the public map and browse infrastructure markers",
+    "description": "This test verifies that a public visitor can open the map and see infrastructure markers displayed for browsing.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the interactive map is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify infrastructure markers are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Search for an infrastructure and open its result on the map",
+    "description": "This test verifies that a public visitor can search for an infrastructure name, choose a result, and have the map focus on that location with its popup open.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Enter an infrastructure name into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Select a search result"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the map focuses on the selected location"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the corresponding popup is open"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Filter the map by category and territory",
+    "description": "This test verifies that a public visitor can narrow map results using category and territory filters and see the displayed markers update accordingly.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Select a category filter value"
+      },
+      {
+        "type": "action",
+        "description": "Select a Kecamatan territory filter value"
+      },
+      {
+        "type": "action",
+        "description": "Select a Nagari territory filter value"
+      },
+      {
+        "type": "action",
+        "description": "Select a Korong territory filter value"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the displayed infrastructure markers reflect the selected filters"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Open a marker popup and read location details",
+    "description": "This test verifies that a public visitor can click a map marker and see the popup with the infrastructure details needed to identify the location.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click an infrastructure marker on the map"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a marker popup is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the popup shows location details including the photo and coordinates"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Create an infrastructure record with photo details",
+    "description": "This test verifies that an admin can create a new infrastructure entry with territory codes and photo information and see it added to the table.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Open the create infrastructure form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the infrastructure name"
+      },
+      {
+        "type": "action",
+        "description": "Select a category"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the address field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid coordinates"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the territory codes"
+      },
+      {
+        "type": "action",
+        "description": "Fill in photo information"
+      },
+      {
+        "type": "action",
+        "description": "Submit the infrastructure form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new infrastructure record appears in the table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Create a new category",
+    "description": "This test verifies that an admin can add a category and see it appear in the category list for later use in forms and filtering.",
+    "category": "Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open category management"
+      },
+      {
+        "type": "action",
+        "description": "Open the create category form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the category label"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the category value"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the category color"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the category icon"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the category sort order"
+      },
+      {
+        "type": "action",
+        "description": "Submit the category form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new category appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Switch the basemap while keeping map overlays available",
+    "description": "A public visitor can change the map basemap and still keep the infrastructure overlays visible.",
+    "category": "Public Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Toggle the basemap to an alternate view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the map background changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify infrastructure overlays remain visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Browse and filter infrastructure records",
+    "description": "This test verifies that an admin can review the infrastructure table and narrow the visible records using search and territory or category filters.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Set a category filter"
+      },
+      {
+        "type": "action",
+        "description": "Set a territory filter"
+      },
+      {
+        "type": "action",
+        "description": "Enter a search term for an infrastructure record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the table shows matching infrastructure records"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Create a statistics record",
+    "description": "This test verifies that an admin can add a new statistics entry and see it appear in the statistics table.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Open the create statistics form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the territory codes"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the indicator name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a numeric value"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the unit field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the year field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the statistics form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new statistics record appears in the table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Review updated statistics after changing territory filters on mobile",
+    "description": "A mobile visitor can open the filter and statistics panels and see the displayed summaries update for the selected territory.",
+    "category": "Public Interactive Map",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the filter panel"
+      },
+      {
+        "type": "action",
+        "description": "Select a Kecamatan"
+      },
+      {
+        "type": "action",
+        "description": "Select a Nagari"
+      },
+      {
+        "type": "action",
+        "description": "Open the statistics panel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated statistics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify summary cards are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Edit an infrastructure record",
+    "description": "This test verifies that an admin can update an existing infrastructure record and see the edited record reflected in the table.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing infrastructure record for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the infrastructure name"
+      },
+      {
+        "type": "action",
+        "description": "Update the coordinates"
+      },
+      {
+        "type": "action",
+        "description": "Save the infrastructure changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated infrastructure record appears in the table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Edit an existing category",
+    "description": "This test verifies that an admin can update a category and see the revised values reflected in the category list.",
+    "category": "Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open category management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing category for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the category label"
+      },
+      {
+        "type": "action",
+        "description": "Update the category value"
+      },
+      {
+        "type": "action",
+        "description": "Save the category changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated category appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Open the admin dashboard from the protected root route",
+    "description": "A logged-in admin who visits the protected admin root is redirected to the dashboard landing page.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /admin"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify summary count cards are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Browse and filter statistics records",
+    "description": "This test verifies that an admin can review statistics data and narrow the table using territory, year, or indicator filters.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Set a territory filter"
+      },
+      {
+        "type": "action",
+        "description": "Set a year filter"
+      },
+      {
+        "type": "action",
+        "description": "Set an indicator filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the table shows matching statistics records"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "View dashboard summary counts and navigate to management sections",
+    "description": "A logged-in admin can review the dashboard totals and continue to a management page from the landing screen.",
+    "category": "Admin Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify summary count cards are shown"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to a management section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected management page is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Delete an unused category",
+    "description": "This test verifies that an admin can remove a category that is not in use and see it disappear from the category list.",
+    "category": "Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open category management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing unused category for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the category is removed from the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Edit a statistics record",
+    "description": "This test verifies that an admin can update an existing statistics entry and see the revised record in the table.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing statistics record for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the indicator name"
+      },
+      {
+        "type": "action",
+        "description": "Update the numeric value"
+      },
+      {
+        "type": "action",
+        "description": "Save the statistics changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated statistics record appears in the table"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC021",
+    "title": "Delete an infrastructure record",
+    "description": "This test verifies that an admin can delete an infrastructure record and see it removed from the list.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing infrastructure record for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the infrastructure record is removed from the table"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC022",
+    "title": "Import infrastructure data from Excel",
+    "description": "This test verifies that an admin can import infrastructure data and review the import summary with row-level results.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Open the import workflow"
+      },
+      {
+        "type": "action",
+        "description": "Choose a valid Excel file for import"
+      },
+      {
+        "type": "action",
+        "description": "Run the import"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an import summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify row-level import results are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC023",
+    "title": "Delete a statistics record",
+    "description": "This test verifies that an admin can delete a statistics entry and see it removed from the list.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing statistics record for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the statistics record is removed from the table"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC024",
+    "title": "Export filtered infrastructure data",
+    "description": "This test verifies that an admin can export the currently filtered infrastructure table from the management page.",
+    "category": "Infrastructure Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open infrastructure management"
+      },
+      {
+        "type": "action",
+        "description": "Apply a table filter"
+      },
+      {
+        "type": "action",
+        "description": "Trigger the export action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the export action is available from the table"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered data remains visible after export is triggered"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Import statistics data from Excel",
+    "description": "This test verifies that an admin can import statistics data and review the import summary with row-level results.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Open the import workflow"
+      },
+      {
+        "type": "action",
+        "description": "Choose a valid Excel file for import"
+      },
+      {
+        "type": "action",
+        "description": "Run the import"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an import summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify row-level import results are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "See a login error for invalid admin credentials",
+    "description": "An admin visitor sees an authentication error when submitting invalid credentials on the login page.",
+    "category": "Admin Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with fake-user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with fake-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an authentication error message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access to the admin dashboard is not granted"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC027",
+    "title": "Prevent deleting a category that is already in use",
+    "description": "This test verifies that an admin cannot delete a category that is referenced by infrastructure and sees the deletion blocked in the UI.",
+    "category": "Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open category management"
+      },
+      {
+        "type": "action",
+        "description": "Open a category that is already used by infrastructure for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a deletion error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the category remains in the list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC028",
+    "title": "Export filtered statistics data",
+    "description": "This test verifies that an admin can export the currently filtered statistics table from the management page.",
+    "category": "Statistics Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open statistics management"
+      },
+      {
+        "type": "action",
+        "description": "Apply a table filter"
+      },
+      {
+        "type": "action",
+        "description": "Trigger the export action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the export action is available from the table"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered data remains visible after export is triggered"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "projectPath": "d:\\Code\\petapeta\\tematik1306\\padang-pariaman-map\\client",
+  "type": "frontend",
+  "localPort": 5174,
+  "pathname": "/admin",
+  "testScope": "codebase",
+  "testPlanFile": "testsprite_tests/testsprite_frontend_test_plan.json",
+  "codeSummaryFile": "testsprite_tests/tmp/code_summary.yaml"
+}

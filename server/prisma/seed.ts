@@ -35,14 +35,14 @@ async function main() {
   console.log('✓ Kategori infrastruktur selesai');
 
   // Seed data statistik contoh
-  // idkab=1306, idkec=7 digit (1306xxx), iddesa=10 digit
+  // Kode wilayah BPS: kdkab=1306, kdkec=6 digit (130601...), kddesa=10 digit
   const statistikContoh = [
-    { idkab: '1306', idkec: '1306010', iddesa: null, idsls: null, indikator: 'Jumlah Penduduk', nilai: 45230, satuan: 'jiwa', tahun: 2024 },
-    { idkab: '1306', idkec: '1306020', iddesa: null, idsls: null, indikator: 'Jumlah Penduduk', nilai: 38120, satuan: 'jiwa', tahun: 2024 },
-    { idkab: '1306', idkec: '1306030', iddesa: null, idsls: null, indikator: 'Jumlah Penduduk', nilai: 29870, satuan: 'jiwa', tahun: 2024 },
-    { idkab: '1306', idkec: '1306010', iddesa: null, idsls: null, indikator: 'Luas Wilayah', nilai: 42.5, satuan: 'km²', tahun: 2024 },
-    { idkab: '1306', idkec: '1306020', iddesa: null, idsls: null, indikator: 'Luas Wilayah', nilai: 55.3, satuan: 'km²', tahun: 2024 },
-    { idkab: '1306', idkec: '1306030', iddesa: null, idsls: null, indikator: 'Luas Wilayah', nilai: 38.8, satuan: 'km²', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130601', kddesa: null, kdsls: null, indikator: 'Jumlah Penduduk', nilai: 45230, satuan: 'jiwa', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130602', kddesa: null, kdsls: null, indikator: 'Jumlah Penduduk', nilai: 38120, satuan: 'jiwa', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130603', kddesa: null, kdsls: null, indikator: 'Jumlah Penduduk', nilai: 29870, satuan: 'jiwa', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130601', kddesa: null, kdsls: null, indikator: 'Luas Wilayah',    nilai: 42.5,  satuan: 'km²', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130602', kddesa: null, kdsls: null, indikator: 'Luas Wilayah',    nilai: 55.3,  satuan: 'km²', tahun: 2024 },
+    { kdkab: '1306', kdkec: '130603', kddesa: null, kdsls: null, indikator: 'Luas Wilayah',    nilai: 38.8,  satuan: 'km²', tahun: 2024 },
   ];
 
   for (const stat of statistikContoh) {
@@ -51,16 +51,16 @@ async function main() {
   console.log('✓ Data statistik contoh selesai');
 
   // Seed data infrastruktur contoh
-  // Menggunakan idkec 7 digit dan iddesa 10 digit sesuai format GeoJSON BPS
+  // Kode wilayah BPS: kdkab=1306, kdkec=6 digit, kddesa=10 digit
   const infraContoh = [
-    { nama: 'Rumah Makan Sari Raso',    kategori: 'restoran',     alamat: 'Jl. Raya Batang Anai No. 5',  lat: -0.5320, lng: 100.1050, idkab: '1306', idkec: '1306010', iddesa: '1306010001' },
-    { nama: 'Masjid Raya Batang Anai',  kategori: 'rumah_ibadah', alamat: 'Jl. Masjid No. 1, Batang Anai', lat: -0.5350, lng: 100.1100, idkab: '1306', idkec: '1306010', iddesa: '1306010001' },
-    { nama: 'Pasar Batang Anai',        kategori: 'pasar',        alamat: 'Jl. Pasar Raya, Batang Anai',  lat: -0.5380, lng: 100.1120, idkab: '1306', idkec: '1306010', iddesa: '1306010002' },
-    { nama: 'Puskesmas Batang Anai',    kategori: 'kesehatan',    alamat: 'Jl. Kesehatan No. 3',          lat: -0.5400, lng: 100.1150, idkab: '1306', idkec: '1306010', iddesa: '1306010002' },
-    { nama: 'Toko Bangunan Maju Jaya',  kategori: 'toko',         alamat: 'Jl. Industri No. 7',           lat: -0.5600, lng: 100.1300, idkab: '1306', idkec: '1306020', iddesa: '1306020001' },
-    { nama: 'Masjid Al-Ikhlas',         kategori: 'rumah_ibadah', alamat: 'Jl. Masjid Al-Ikhlas',         lat: -0.5620, lng: 100.1320, idkab: '1306', idkec: '1306020', iddesa: '1306020001' },
-    { nama: 'Warung Makan Padang',      kategori: 'restoran',     alamat: 'Jl. Raya No. 12',              lat: -0.5590, lng: 100.1280, idkab: '1306', idkec: '1306020', iddesa: '1306020002' },
-    { nama: 'Klinik Sehat Bersama',     kategori: 'kesehatan',    alamat: 'Jl. Klinik No. 2',             lat: -0.5610, lng: 100.1310, idkab: '1306', idkec: '1306020', iddesa: '1306020002' },
+    { nama: 'Rumah Makan Sari Raso',   kategori: 'restoran',     alamat: 'Jl. Raya Batang Anai No. 5',    lat: -0.5320, lng: 100.1050, kdkab: '1306', kdkec: '130601', kddesa: '1306010001' },
+    { nama: 'Masjid Raya Batang Anai', kategori: 'rumah_ibadah', alamat: 'Jl. Masjid No. 1, Batang Anai', lat: -0.5350, lng: 100.1100, kdkab: '1306', kdkec: '130601', kddesa: '1306010001' },
+    { nama: 'Pasar Batang Anai',       kategori: 'pasar',        alamat: 'Jl. Pasar Raya, Batang Anai',   lat: -0.5380, lng: 100.1120, kdkab: '1306', kdkec: '130601', kddesa: '1306010002' },
+    { nama: 'Puskesmas Batang Anai',   kategori: 'kesehatan',    alamat: 'Jl. Kesehatan No. 3',           lat: -0.5400, lng: 100.1150, kdkab: '1306', kdkec: '130601', kddesa: '1306010002' },
+    { nama: 'Toko Bangunan Maju Jaya', kategori: 'toko',         alamat: 'Jl. Industri No. 7',            lat: -0.5600, lng: 100.1300, kdkab: '1306', kdkec: '130602', kddesa: '1306020001' },
+    { nama: 'Masjid Al-Ikhlas',        kategori: 'rumah_ibadah', alamat: 'Jl. Masjid Al-Ikhlas',          lat: -0.5620, lng: 100.1320, kdkab: '1306', kdkec: '130602', kddesa: '1306020001' },
+    { nama: 'Warung Makan Padang',     kategori: 'restoran',     alamat: 'Jl. Raya No. 12',               lat: -0.5590, lng: 100.1280, kdkab: '1306', kdkec: '130602', kddesa: '1306020002' },
+    { nama: 'Klinik Sehat Bersama',    kategori: 'kesehatan',    alamat: 'Jl. Klinik No. 2',              lat: -0.5610, lng: 100.1310, kdkab: '1306', kdkec: '130602', kddesa: '1306020002' },
   ];
 
   for (const infra of infraContoh) {

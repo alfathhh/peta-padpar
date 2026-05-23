@@ -4,7 +4,6 @@ import { cn } from '../../lib/cn';
 import { resolveAssetUrl } from '../../lib/assetUrl';
 import { Icon } from '../ui/Icon';
 import { Button } from '../ui/Button';
-import { Modal } from '../ui/Modal';
 
 interface FotoUploadProps {
   value: string;
@@ -51,6 +50,7 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
   const preview = resolveAssetUrl(value);
   const hasPhoto = !!value;
 
+
   function openEditor(imgSrc: string, fileName = 'foto') {
     setSrc(imgSrc); setName(fileName);
     setZoom(1); setPx(0); setPy(0); setRot(0);
@@ -64,8 +64,8 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
 
   function pickFile(file: File) {
     setError('');
-    if (!file.type.startsWith('image/')) { setError('Format tidak didukung. Gunakan JPG, PNG, atau WebP.'); return; }
-    if (file.size > 8 * 1024 * 1024) { setError('File terlalu besar (maks 8 MB).'); return; }
+    if (!file.type.startsWith('image/')) { setError('Format tidak didukung'); return; }
+    if (file.size > 8 * 1024 * 1024) { setError('Maks 8 MB'); return; }
     const r = new FileReader();
     r.onload = () => openEditor(String(r.result), file.name.replace(/\.[^.]+$/, '') || 'foto');
     r.readAsDataURL(file);
@@ -74,7 +74,6 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
   function onDrop(e: React.DragEvent) { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) pickFile(e.dataTransfer.files[0]); }
   function onFiles(fl: FileList | null) { if (fl?.[0]) pickFile(fl[0]); }
 
-  // Pointer events for pan
   function pDown(e: React.PointerEvent<HTMLDivElement>) {
     dragRef.current = { x: e.clientX, y: e.clientY, px, py };
     setPanning(true); e.currentTarget.setPointerCapture(e.pointerId);
@@ -93,6 +92,7 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
     setZoom(z => Math.max(1, Math.min(3, +(z + (e.deltaY > 0 ? -0.1 : 0.1)).toFixed(2))));
   }
 
+
   async function save() {
     if (!src) return;
     setSaving(true); setError('');
@@ -101,7 +101,7 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
       const canvas = document.createElement('canvas');
       canvas.width = OUTPUT_W; canvas.height = OUTPUT_H;
       const ctx = canvas.getContext('2d')!;
-      ctx.fillStyle = '#fafafa'; ctx.fillRect(0, 0, OUTPUT_W, OUTPUT_H);
+      ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, OUTPUT_W, OUTPUT_H);
 
       const rect = canvasRef.current?.getBoundingClientRect();
       const sc = OUTPUT_W / (rect?.width || OUTPUT_W);
@@ -124,125 +124,138 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
       onChange(res.data.fotoUrl);
       closeEditor();
     } catch (err: any) {
-      setError(err?.response?.data?.error ?? err?.message ?? 'Gagal menyimpan foto.');
+      setError(err?.response?.data?.error ?? err?.message ?? 'Gagal menyimpan');
     } finally { setSaving(false); }
   }
+
 
   return (
     <>
       <div className="space-y-3">
         <label className="block text-sm font-medium text-neutral-700">Foto</label>
 
-        {/* ── Preview: existing photo ── */}
-        {hasPhoto && (
-          <div className="group relative rounded-xl overflow-hidden border border-neutral-200 shadow-xs">
+        {/* ═══ PREVIEW ═══ */}
+        {hasPhoto && !editorOpen && (
+          <div className="group relative rounded-xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-md transition-shadow duration-300">
             <img src={preview} alt="Foto" className="w-full aspect-[16/9] object-cover bg-neutral-100" />
-            {/* Gradient + actions on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute bottom-0 inset-x-0 p-4 flex items-center justify-between opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
-              <span className="text-[11px] font-medium text-white/70 tracking-wide uppercase">16:10 • WebP</span>
-              <div className="flex gap-1.5">
-                <button type="button" onClick={() => openEditor(preview)}
-                  className="h-8 px-3.5 rounded-lg bg-white text-xs font-semibold text-neutral-800 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all inline-flex items-center gap-1.5">
-                  <Icon name="pencil" className="h-3 w-3" /> Edit
-                </button>
-                <button type="button" onClick={() => fileRef.current?.click()}
-                  className="h-8 px-3.5 rounded-lg bg-white/90 text-xs font-semibold text-neutral-700 shadow-lg hover:bg-white transition-all inline-flex items-center gap-1.5">
-                  <Icon name="image" className="h-3 w-3" /> Ganti
-                </button>
-                <button type="button" onClick={() => onChange('')}
-                  className="h-8 w-8 rounded-lg bg-white/90 text-danger-500 shadow-lg hover:bg-white flex items-center justify-center transition-all">
-                  <Icon name="trash" className="h-3.5 w-3.5" />
-                </button>
+            {/* Cinematic gradient reveal */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+            {/* Floating action bar — slides up */}
+            <div className="absolute bottom-0 inset-x-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-medium text-white/50 uppercase tracking-[0.15em]">16 : 10 &bull; WebP</span>
+                <div className="flex gap-1.5">
+                  <button type="button" onClick={() => openEditor(preview)}
+                    className="h-8 px-3 rounded-lg bg-white/95 backdrop-blur-sm text-[11px] font-semibold text-neutral-900 shadow-xl hover:bg-white active:scale-95 transition-all inline-flex items-center gap-1.5">
+                    <Icon name="pencil" className="h-3 w-3" /> Edit
+                  </button>
+                  <button type="button" onClick={() => fileRef.current?.click()}
+                    className="h-8 px-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 text-[11px] font-semibold text-white shadow-xl hover:bg-white/30 active:scale-95 transition-all inline-flex items-center gap-1.5">
+                    <Icon name="image" className="h-3 w-3" /> Ganti
+                  </button>
+                  <button type="button" onClick={() => onChange('')}
+                    className="h-8 w-8 rounded-lg bg-red-500/20 backdrop-blur-sm border border-red-400/20 text-red-300 shadow-xl hover:bg-red-500/30 active:scale-95 flex items-center justify-center transition-all">
+                    <Icon name="trash" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Drop zone: no photo ── */}
-        {!hasPhoto && (
+        {/* ═══ DROP ZONE ═══ */}
+        {!hasPhoto && !editorOpen && (
           <div
             onDragOver={e => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
             onClick={() => fileRef.current?.click()}
             className={cn(
-              'group cursor-pointer rounded-xl border-2 border-dashed py-10 px-6 text-center transition-all duration-200',
+              'group cursor-pointer relative rounded-xl border-2 border-dashed py-12 px-6 text-center overflow-hidden transition-all duration-300',
               dragOver
-                ? 'border-primary-500 bg-primary-50 scale-[1.01] shadow-md'
-                : 'border-neutral-300 bg-neutral-50/50 hover:border-primary-400 hover:bg-primary-50/30 hover:shadow-sm',
+                ? 'border-primary-500 bg-primary-50/80 scale-[1.005] shadow-lg shadow-primary-500/10'
+                : 'border-neutral-300/80 bg-gradient-to-b from-neutral-50 to-white hover:border-primary-400/60 hover:shadow-sm',
             )}
           >
+            {/* Subtle pattern background */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
             <div className={cn(
-              'mx-auto w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all duration-200',
-              dragOver ? 'bg-primary-100 text-primary-600 scale-110' : 'bg-neutral-100 text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-500',
+              'relative mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300',
+              dragOver ? 'bg-primary-100 text-primary-600 scale-110 rotate-3' : 'bg-neutral-100/80 text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-500 group-hover:scale-105',
             )}>
-              <Icon name="image" className="h-5 w-5" />
+              <Icon name="image" className="h-6 w-6" />
             </div>
-            <p className="text-sm font-semibold text-neutral-800">
-              {dragOver ? 'Lepaskan foto di sini' : 'Pilih atau jatuhkan foto'}
+            <p className="relative text-sm font-semibold text-neutral-800">
+              {dragOver ? 'Lepaskan untuk upload' : 'Pilih atau jatuhkan foto'}
             </p>
-            <p className="text-xs text-neutral-500 mt-1.5">
-              JPG, PNG, WebP • Maks 8 MB • Akan di-crop ke rasio 16:10
+            <p className="relative text-xs text-neutral-500 mt-1.5">
+              JPG, PNG, WebP &bull; Maks 8 MB &bull; Crop 16:10
             </p>
           </div>
         )}
 
         {/* Error */}
         {error && !editorOpen && (
-          <div className="flex items-start gap-2 rounded-lg bg-danger-50 border border-danger-100 px-3 py-2.5">
-            <Icon name="x" className="h-3.5 w-3.5 text-danger-500 mt-0.5 shrink-0" />
-            <p className="text-xs text-danger-700">{error}</p>
+          <div className="flex items-center gap-2.5 rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 animate-slide-down">
+            <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+              <Icon name="x" className="h-3 w-3 text-red-600" />
+            </div>
+            <p className="text-xs text-red-700 font-medium">{error}</p>
           </div>
         )}
 
         {/* URL manual */}
-        {!showUrl ? (
-          <button type="button" onClick={() => setShowUrl(true)}
-            className="text-xs text-neutral-400 hover:text-primary-600 transition-colors duration-150">
-            Atau masukkan URL foto →
-          </button>
-        ) : (
-          <div className="flex gap-2 items-center animate-fade-in">
-            <input type="url" value={urlVal} onChange={e => setUrlVal(e.target.value)} placeholder="https://..."
-              className="flex-1 h-9 rounded-lg border border-neutral-200 px-3 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all" />
-            <Button size="sm" onClick={() => { if (urlVal.trim()) { onChange(urlVal.trim()); setUrlVal(''); setShowUrl(false); } }} disabled={!urlVal.trim()}>
-              Simpan
-            </Button>
-            <button type="button" onClick={() => { setShowUrl(false); setUrlVal(''); }}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors">
-              <Icon name="x" className="h-3.5 w-3.5" />
+        {!editorOpen && (
+          !showUrl ? (
+            <button type="button" onClick={() => setShowUrl(true)}
+              className="text-[11px] text-neutral-400 hover:text-primary-600 transition-colors duration-200 tracking-wide">
+              ATAU MASUKKAN URL &rarr;
             </button>
-          </div>
+          ) : (
+            <div className="flex gap-2 items-center animate-fade-in">
+              <input type="url" value={urlVal} onChange={e => setUrlVal(e.target.value)} placeholder="https://..."
+                className="flex-1 h-9 rounded-lg border border-neutral-200 px-3 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/15 transition-all" />
+              <Button size="sm" onClick={() => { if (urlVal.trim()) { onChange(urlVal.trim()); setUrlVal(''); setShowUrl(false); } }} disabled={!urlVal.trim()}>OK</Button>
+              <button type="button" onClick={() => { setShowUrl(false); setUrlVal(''); }}
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-neutral-400 hover:bg-neutral-100 transition-colors">
+                <Icon name="x" className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )
         )}
 
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e => onFiles(e.target.files)} />
       </div>
 
-      {/* ══════════════════ EDITOR MODAL ══════════════════ */}
-      <Modal
-        isOpen={editorOpen}
-        onClose={closeEditor}
-        title="Atur Foto"
-        size="lg"
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeEditor}>Batal</Button>
-            <Button onClick={save} isLoading={saving}>
-              Simpan Foto
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-5">
-          {/* Canvas */}
-          <div className="rounded-xl overflow-hidden bg-neutral-950 shadow-lg ring-1 ring-white/5">
+
+      {/* ═══════════ FULLSCREEN EDITOR — Cinematic ═══════════ */}
+      {editorOpen && (
+        <div className="fixed inset-0 z-[9999] flex flex-col bg-[#0c0c0f]">
+          {/* Top bar — frosted glass */}
+          <div className="relative z-10 flex items-center justify-between h-14 px-5 border-b border-white/[0.06] bg-[#0c0c0f]/80 backdrop-blur-xl">
+            <button type="button" onClick={closeEditor}
+              className="h-8 px-4 rounded-lg text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/[0.06] transition-all">
+              Batal
+            </button>
+            <div className="absolute left-1/2 -translate-x-1/2 text-center">
+              <p className="text-[11px] font-semibold text-white/90 tracking-wide">ATUR KOMPOSISI</p>
+              <p className="text-[10px] text-white/30 mt-0.5">{name}.webp &bull; 1280×800</p>
+            </div>
+            <button type="button" onClick={save} disabled={saving}
+              className="h-8 px-5 rounded-lg bg-white text-[12px] font-bold text-[#0c0c0f] hover:bg-white/90 disabled:opacity-40 active:scale-95 transition-all shadow-lg shadow-white/10">
+              {saving ? 'Menyimpan...' : 'Simpan'}
+            </button>
+          </div>
+
+          {/* Canvas area — centered with padding */}
+          <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
             <div
               ref={canvasRef}
               className={cn(
-                'relative aspect-[16/10] overflow-hidden touch-none select-none',
+                'relative overflow-hidden rounded-lg shadow-2xl shadow-black/60 ring-1 ring-white/[0.08]',
                 panning ? 'cursor-grabbing' : 'cursor-grab',
               )}
+              style={{ width: 'min(90vw, 800px)', aspectRatio: '16 / 10' }}
               onPointerDown={pDown}
               onPointerMove={pMove}
               onPointerUp={pUp}
@@ -251,90 +264,65 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
               onDoubleClick={() => { setZoom(1); setPx(0); setPy(0); setRot(0); }}
             >
               {src && (
-                <img
-                  src={src} alt="Edit" draggable={false}
-                  className={cn(
-                    'absolute inset-0 w-full h-full object-cover will-change-transform',
-                    panning ? '' : 'transition-transform duration-200 ease-out',
-                  )}
-                  style={{
-                    transform: `translate(${px}px, ${py}px) rotate(${rot}deg) scale(${zoom})`,
-                    transformOrigin: 'center',
-                  }}
+                <img src={src} alt="" draggable={false}
+                  className={cn('absolute inset-0 w-full h-full object-cover will-change-transform select-none', panning ? '' : 'transition-transform duration-200 ease-out')}
+                  style={{ transform: `translate(${px}px, ${py}px) rotate(${rot}deg) scale(${zoom})`, transformOrigin: 'center' }}
                 />
               )}
-
-              {/* Rule of thirds — SVG */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" preserveAspectRatio="none" viewBox="0 0 480 300">
-                <line x1="160" y1="0" x2="160" y2="300" stroke="white" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="320" y1="0" x2="320" y2="300" stroke="white" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="100" x2="480" y2="100" stroke="white" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="0" y1="200" x2="480" y2="200" stroke="white" strokeWidth="0.5" strokeDasharray="4 4" />
+              {/* Dashed rule-of-thirds */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 480 300" fill="none">
+                <line x1="160" y1="0" x2="160" y2="300" stroke="white" strokeOpacity="0.12" strokeWidth="0.6" strokeDasharray="6 4" />
+                <line x1="320" y1="0" x2="320" y2="300" stroke="white" strokeOpacity="0.12" strokeWidth="0.6" strokeDasharray="6 4" />
+                <line x1="0" y1="100" x2="480" y2="100" stroke="white" strokeOpacity="0.12" strokeWidth="0.6" strokeDasharray="6 4" />
+                <line x1="0" y1="200" x2="480" y2="200" stroke="white" strokeOpacity="0.12" strokeWidth="0.6" strokeDasharray="6 4" />
               </svg>
-
-              {/* Corner brackets */}
-              <div className="absolute top-3 left-3 w-5 h-5 border-l-[1.5px] border-t-[1.5px] border-white/50 rounded-tl" />
-              <div className="absolute top-3 right-3 w-5 h-5 border-r-[1.5px] border-t-[1.5px] border-white/50 rounded-tr" />
-              <div className="absolute bottom-3 left-3 w-5 h-5 border-l-[1.5px] border-b-[1.5px] border-white/50 rounded-bl" />
-              <div className="absolute bottom-3 right-3 w-5 h-5 border-r-[1.5px] border-b-[1.5px] border-white/50 rounded-br" />
-
-              {/* Center crosshair */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-30">
-                <div className="w-6 h-px bg-white" />
-                <div className="w-px h-6 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-              </div>
+              {/* Corner L-brackets */}
+              <div className="absolute top-3 left-3 w-6 h-6 border-l-[2px] border-t-[2px] border-white/40 rounded-tl-sm" />
+              <div className="absolute top-3 right-3 w-6 h-6 border-r-[2px] border-t-[2px] border-white/40 rounded-tr-sm" />
+              <div className="absolute bottom-3 left-3 w-6 h-6 border-l-[2px] border-b-[2px] border-white/40 rounded-bl-sm" />
+              <div className="absolute bottom-3 right-3 w-6 h-6 border-r-[2px] border-b-[2px] border-white/40 rounded-br-sm" />
             </div>
           </div>
 
-          {/* Controls row */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* Zoom control — pill */}
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center bg-neutral-100 rounded-full p-0.5">
+          {/* Bottom toolbar — floating glass panel */}
+          <div className="relative z-10 border-t border-white/[0.06] bg-[#0c0c0f]/80 backdrop-blur-xl px-5 py-4">
+            <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
+              {/* Zoom pill */}
+              <div className="inline-flex items-center gap-0.5 bg-white/[0.06] rounded-full p-1 border border-white/[0.08]">
                 <button type="button" onClick={() => setZoom(z => Math.max(1, +(z - 0.2).toFixed(1)))}
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-neutral-600 hover:bg-white hover:shadow-sm transition-all" title="Perkecil">
-                  <Icon name="minus" className="h-3.5 w-3.5" />
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                  <Icon name="minus" className="h-3 w-3" />
                 </button>
-                <span className="w-14 text-center text-xs font-semibold text-neutral-700 tabular-nums">{zoom.toFixed(1)}×</span>
+                <span className="w-12 text-center text-[11px] font-bold text-white/80 tabular-nums tracking-wide">{zoom.toFixed(1)}×</span>
                 <button type="button" onClick={() => setZoom(z => Math.min(3, +(z + 0.2).toFixed(1)))}
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-neutral-600 hover:bg-white hover:shadow-sm transition-all" title="Perbesar">
-                  <Icon name="plus" className="h-3.5 w-3.5" />
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all">
+                  <Icon name="plus" className="h-3 w-3" />
                 </button>
               </div>
 
-              <button type="button" onClick={() => setRot(r => (r + 90) % 360)}
-                className="h-9 px-3.5 rounded-lg border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 inline-flex items-center gap-1.5 transition-all active:scale-95">
-                <Icon name="rotate-clockwise" className="h-3.5 w-3.5" /> Putar
-              </button>
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setRot(r => (r + 90) % 360)}
+                  className="h-8 px-3 rounded-lg bg-white/[0.06] border border-white/[0.08] text-[11px] font-semibold text-white/70 hover:text-white hover:bg-white/10 inline-flex items-center gap-1.5 transition-all active:scale-95">
+                  <Icon name="rotate-clockwise" className="h-3.5 w-3.5" /> Putar
+                </button>
+                <button type="button" onClick={() => { setZoom(1); setPx(0); setPy(0); setRot(0); }}
+                  className="h-8 px-3 rounded-lg bg-white/[0.06] border border-white/[0.08] text-[11px] font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                  Reset
+                </button>
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="h-8 px-3 rounded-lg bg-white/[0.06] border border-white/[0.08] text-[11px] font-semibold text-white/70 hover:text-white hover:bg-white/10 inline-flex items-center gap-1.5 transition-all active:scale-95">
+                  <Icon name="image" className="h-3.5 w-3.5" /> Ganti
+                </button>
+              </div>
             </div>
-
-            {/* Right side */}
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => { setZoom(1); setPx(0); setPy(0); setRot(0); }}
-                className="h-9 px-3.5 rounded-lg border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-all active:scale-95">
-                Reset
-              </button>
-              <button type="button" onClick={() => fileRef.current?.click()}
-                className="h-9 px-3.5 rounded-lg border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 inline-flex items-center gap-1.5 transition-all active:scale-95">
-                <Icon name="image" className="h-3.5 w-3.5" /> Ganti foto
-              </button>
-            </div>
+            {/* Hint */}
+            <p className="text-center text-[10px] text-white/25 mt-3 tracking-[0.2em] uppercase">
+              Drag geser &nbsp;&bull;&nbsp; Scroll zoom &nbsp;&bull;&nbsp; Double-klik reset
+            </p>
           </div>
-
-          {/* Hint */}
-          <p className="text-[11px] text-neutral-400 text-center tracking-wide">
-            DRAG untuk geser &nbsp;•&nbsp; SCROLL untuk zoom &nbsp;•&nbsp; DOUBLE-KLIK untuk reset
-          </p>
-
-          {/* Error */}
-          {error && (
-            <div className="flex items-start gap-2 rounded-lg bg-danger-50 border border-danger-100 px-3 py-2.5">
-              <Icon name="x" className="h-3.5 w-3.5 text-danger-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-danger-700">{error}</p>
-            </div>
-          )}
         </div>
-      </Modal>
+      )}
     </>
   );
 }

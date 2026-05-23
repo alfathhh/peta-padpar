@@ -132,11 +132,11 @@ npm run dev
 |--------|----------|-----------|
 | POST | `/api/auth/login` | Login, return JWT |
 | GET | `/api/kategori` | Daftar kategori |
-| GET | `/api/infrastruktur` | List infrastruktur (filter: kategori, wilayah, search, page) |
-| GET | `/api/statistik` | Data statistik (filter: wilayah, tahun, indikator) |
-| GET | `/api/wilayah/kecamatan` | Daftar kecamatan |
-| GET | `/api/wilayah/nagari?kdkec=` | Daftar nagari |
-| GET | `/api/wilayah/korong?kddesa=` | Daftar korong |
+| GET | `/api/infrastruktur` | List infrastruktur (filter: kategori, kdkec, kddesa, search, page) |
+| GET | `/api/statistik` | Data statistik (filter: kdkec, kddesa, tahun, indikator) |
+| GET | `/api/wilayah/kecamatan?kdkab=` | Daftar kecamatan |
+| GET | `/api/wilayah/nagari?kdkec=` | Daftar nagari berdasarkan `kdkec` |
+| GET | `/api/wilayah/korong?kddesa=` | Daftar korong berdasarkan `kddesa` |
 
 ### Protected (Bearer token)
 
@@ -154,16 +154,16 @@ npm run dev
 
 ---
 
-## Kode Wilayah
+## Kode Wilayah (BPS)
 
-Hierarki kode wilayah Kabupaten Padang Pariaman:
+Hierarki kode wilayah BPS Kabupaten Padang Pariaman:
 
 | Level | Field | Digit | Contoh |
 |-------|-------|-------|--------|
-| Kabupaten | `idkab` | 4 | `1305` |
-| Kecamatan | `idkec` | 6 | `130501` |
-| Nagari | `iddesa` | 10 | `1305010001` |
-| Korong | `idsls` | 12 | `130501000101` |
+| Kabupaten | `kdkab` | 4 | `1306` |
+| Kecamatan | `kdkec` | 6 | `130601` |
+| Nagari | `kddesa` | 10 | `1306010001` |
+| Korong | `kdsls` | 12 | `130601000101` |
 
 ---
 
@@ -179,19 +179,19 @@ Hierarki kode wilayah Kabupaten Padang Pariaman:
 | D | `foto_url` | Tidak | URL atau kosongkan (upload via admin nanti) |
 | E | `lat` | Ya | Latitude |
 | F | `lng` | Ya | Longitude |
-| G | `idkab` | Ya | Harus `1305` |
-| H | `idkec` | Ya | 6 digit |
-| I | `iddesa` | Ya | 10 digit |
-| J | `idsls` | Tidak | 12 digit |
+| G | `kdkab` | Ya | Harus `1306` |
+| H | `kdkec` | Ya | 6 digit, dimulai `1306` |
+| I | `kddesa` | Ya | 10 digit, dimulai dengan `kdkec` |
+| J | `kdsls` | Tidak | 12 digit, dimulai dengan `kddesa` |
 
 ### Statistik
 
 | Kolom | Header | Wajib | Catatan |
 |-------|--------|-------|---------|
-| A | `idkab` | Ya | Kode kabupaten |
-| B | `idkec` | Tidak | Kode kecamatan |
-| C | `iddesa` | Tidak | Kode nagari |
-| D | `idsls` | Tidak | Kode korong |
+| A | `kdkab` | Ya | Kode kabupaten (`1306`) |
+| B | `kdkec` | Tidak | Kode kecamatan |
+| C | `kddesa` | Tidak | Kode nagari |
+| D | `kdsls` | Tidak | Kode korong |
 | E | `indikator` | Ya | Nama indikator |
 | F | `nilai` | Ya | Angka |
 | G | `satuan` | Tidak | Satuan (cth: `jiwa`) |

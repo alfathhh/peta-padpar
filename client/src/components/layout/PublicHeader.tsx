@@ -30,13 +30,13 @@ function HeaderButton({
       aria-label={`Toggle ${label.toLowerCase()}`}
       aria-pressed={active}
       className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-all duration-250 focus-visible:shadow-focus active:scale-[0.98] sm:h-11 sm:px-4',
+        'inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all duration-150',
         active
-          ? 'border-primary-200 bg-primary-50 text-primary-700 shadow-soft'
-          : 'border-neutral-200/80 bg-white/85 text-neutral-600 hover:bg-neutral-50',
+          ? 'border-primary-200 bg-primary-50 text-primary-700'
+          : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300',
       )}
     >
-      <Icon name={icon} className="h-4 w-4" />
+      <Icon name={icon} className="h-3.5 w-3.5" />
       {label}
     </button>
   );
@@ -50,23 +50,26 @@ export default function PublicHeader({
   statistikActive,
 }: PublicHeaderProps) {
   return (
-    <header className="relative z-[1200] flex-shrink-0 border-b border-neutral-200 bg-white px-3 py-2.5 shadow-soft sm:px-4">
-      <div className="grid grid-cols-[auto,1fr] items-center gap-2 sm:gap-3 xl:grid-cols-[auto,1fr,auto]">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-primary-700 shadow-soft sm:h-11 sm:w-11" role="img" aria-label="Logo Padang Pariaman">
-            <span className="select-none font-display text-sm font-bold leading-none text-white">PP</span>
+    <header className="relative z-[1200] flex-shrink-0 border-b border-neutral-200 bg-white h-12 px-3 flex items-center sm:px-4">
+      <div className="flex items-center gap-3 w-full xl:grid xl:grid-cols-[auto,1fr,auto]">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand" role="img" aria-label="Logo">
+            <span className="text-[10px] font-bold text-white">PP</span>
           </div>
-          <div className="hidden min-w-0 sm:block">
-            <h1 className="truncate text-sm font-display font-bold leading-tight text-neutral-900">Peta Tematik</h1>
-            <p className="truncate text-[11px] font-medium leading-tight text-neutral-500">Kab. Padang Pariaman</p>
+          <div className="hidden sm:block">
+            <h1 className="text-sm font-semibold text-neutral-900 leading-tight">Peta Tematik</h1>
+            <p className="text-[10px] text-neutral-500 leading-tight">Kab. Padang Pariaman</p>
           </div>
         </div>
 
-        <div className="min-w-0 justify-self-center w-full max-w-2xl">
+        {/* Search */}
+        <div className="min-w-0 flex-1 max-w-2xl mx-auto xl:mx-0 xl:justify-self-center">
           <SearchBar kategoriMap={kategoriMap} />
         </div>
 
-        <div className="hidden flex-shrink-0 items-center gap-1.5 sm:gap-2 xl:flex">
+        {/* Toggle buttons */}
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           <HeaderButton active={filterActive} label="Filter" icon="filter" onClick={onToggleFilter} />
           <HeaderButton active={statistikActive} label="Statistik" icon="chart" onClick={onToggleStatistik} />
         </div>

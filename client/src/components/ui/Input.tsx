@@ -36,7 +36,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label htmlFor={inputId} className="block text-sm font-medium text-neutral-700 mb-1.5">
             {label}
-            {required && <span className="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+            {required && <span className="text-danger-500 ml-0.5">*</span>}
           </label>
         )}
 
@@ -48,11 +48,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={!!error}
           aria-describedby={describedBy}
           className={cn(
-            'h-10 w-full rounded-xl border bg-white px-3.5 text-sm text-neutral-900 placeholder:text-neutral-400',
-            'transition-colors duration-250 focus:outline-none focus-visible:shadow-focus',
+            'h-9 w-full rounded-lg border bg-white px-3 text-sm text-neutral-900',
+            'placeholder:text-neutral-400',
+            'transition-all duration-150',
+            'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
             error
-              ? 'border-danger-500 focus:border-danger-500'
-              : 'border-neutral-200 focus:border-primary-500',
+              ? 'border-danger-500 focus:ring-danger-500/20 focus:border-danger-500'
+              : 'border-neutral-200 hover:border-neutral-300',
             disabled && 'bg-neutral-50 text-neutral-400 cursor-not-allowed',
             className,
           )}
@@ -60,7 +62,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
 
         {error && (
-          <p id={`${inputId}-error`} className="mt-1.5 text-xs text-danger-500">
+          <p id={`${inputId}-error`} className="mt-1.5 text-xs text-danger-600">
             {error}
           </p>
         )}

@@ -9,6 +9,7 @@ const Dashboard          = React.lazy(() => import('./pages/admin/Dashboard'));
 const AdminKategori      = React.lazy(() => import('./pages/admin/Kategori'));
 const AdminInfrastruktur = React.lazy(() => import('./pages/admin/Infrastruktur'));
 const AdminStatistik     = React.lazy(() => import('./pages/admin/Statistik'));
+const AdminGeoJSON       = React.lazy(() => import('./pages/admin/GeoJSON'));
 const NotFound           = React.lazy(() => import('./pages/NotFound'));
 
 function PageLoading() {
@@ -74,6 +75,7 @@ export default function App() {
               <Route path="/admin/kategori" element={<ProtectedRoute><AdminKategori /></ProtectedRoute>} />
               <Route path="/admin/infrastruktur" element={<ProtectedRoute><AdminInfrastruktur /></ProtectedRoute>} />
               <Route path="/admin/statistik" element={<ProtectedRoute><AdminStatistik /></ProtectedRoute>} />
+              <Route path="/admin/geojson" element={<ProtectedRoute><AdminGeoJSON /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </React.Suspense>

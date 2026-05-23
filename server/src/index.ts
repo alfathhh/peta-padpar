@@ -13,6 +13,7 @@ import wilayahRouter from './routes/wilayah';
 import uploadRouter from './routes/upload';
 import templateRouter from './routes/template';
 import geojsonRouter from './routes/geojson';
+import geojsonAdminRouter from './routes/geojson-admin';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +45,7 @@ app.use('/api/wilayah', wilayahRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/template', templateRouter);
 app.use('/api/geojson', geojsonRouter);
+app.use('/api/geojson-admin', geojsonAdminRouter);
 
 // ===== HEALTH CHECK =====
 app.get('/api/health', (_req, res) => {

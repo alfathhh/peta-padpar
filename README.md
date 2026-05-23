@@ -16,7 +16,7 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 ### Panel Admin (`/admin`)
 
 - Login JWT (7 hari), URL tersembunyi dari publik
-- CRUD infrastruktur + MapPicker + upload foto + import/export Excel
+- CRUD infrastruktur + MapPicker + upload foto + **crop editor inline (16:10, drag/zoom)** + import/export Excel
 - CRUD statistik + import/export Excel
 - CRUD kategori + icon picker + color picker
 
@@ -38,7 +38,21 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 
 ---
 
-## Cara Menjalankan
+## Foto & Crop
+
+Upload foto lewat admin menyimpan **metadata crop** ke database — bukan file kedua:
+
+| Field DB | Nilai | Keterangan |
+|----------|-------|-----------|
+| `fotoCropX` | 0–100 | Focal point horizontal (default 50 = tengah) |
+| `fotoCropY` | 0–100 | Focal point vertikal (default 50 = tengah) |
+| `fotoCropZoom` | ≥1.0 | Skala zoom (default 1 = tanpa zoom) |
+
+Di popup peta, foto ditampilkan dengan `object-position` dan `scale` dari metadata ini. Data lama (null) otomatis fallback ke center/1×.
+
+---
+
+
 
 ### Prasyarat
 
@@ -66,7 +80,9 @@ CORS_ORIGIN="http://localhost:5173"
 
 ```bash
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma migrate deploy   # production
+# atau
+npx prisma migrate dev      # development
 npm run prisma:seed
 npm run dev
 ```
@@ -153,9 +169,9 @@ File GeoJSON disimpan di `server/data/geojson/` dan di-serve melalui endpoint `G
 | Level | Field DB | Digit | Contoh |
 |-------|----------|-------|--------|
 | Kabupaten | `idkab` | 4 | `1306` |
-| Kecamatan | `idkec` | 6 | `130601` |
+| Kecamatan | `idkec` | 7 | `1306010` |
 | Nagari | `iddesa` | 10 | `1306010001` |
-| Korong | `idsls` | 12 | `130601000101` |
+| Korong | `idsls` | 14 | `13060100010001` |
 
 Urutan cascading: `idkec` → `iddesa` → `idsls`
 
@@ -202,9 +218,9 @@ Urutan cascading: `idkec` → `iddesa` → `idsls`
 | E | `lat` | Ya | Latitude |
 | F | `lng` | Ya | Longitude |
 | G | `idkab` | Ya | `1306` |
-| H | `idkec` | Ya | 6 digit |
+| H | `idkec` | Ya | 7 digit |
 | I | `iddesa` | Ya | 10 digit |
-| J | `idsls` | Tidak | 12 digit |
+| J | `idsls` | Tidak | 14 digit |
 
 ### Statistik
 

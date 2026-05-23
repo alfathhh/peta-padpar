@@ -1,7 +1,7 @@
 # Product Specification — Peta Tematik Interaktif Kabupaten Padang Pariaman
 
-**Version:** 1.0  
-**Date:** May 13, 2026  
+**Version:** 1.1  
+**Date:** May 23, 2026  
 **Status:** Production-ready
 
 ---
@@ -72,12 +72,15 @@ Admin accounts are managed directly in the database. There is no self-registrati
 | kategori | String (FK) | References `KategoriInfra.value` |
 | alamat | String? | Optional address |
 | fotoUrl | String? | URL path to photo or external URL |
+| fotoCropX | Float? | Focal point X, 0–100 (default 50 = center) |
+| fotoCropY | Float? | Focal point Y, 0–100 (default 50 = center) |
+| fotoCropZoom | Float? | Scale factor ≥1 (default 1 = no zoom) |
 | lat | Float | Latitude (-90 to 90) |
 | lng | Float | Longitude (-180 to 180) |
-| kdkab | Char(4) | Regency code, always `1305` |
-| kdkec | Char(6) | District code, starts with `1305` |
-| kddesa | Char(10) | Village/Nagari code, starts with kdkec |
-| kdsls | Char(12)? | Sub-village/Korong code, optional |
+| idkab | Char(4) | Regency code, always `1306` |
+| idkec | Char(7) | District code, starts with `1306` |
+| iddesa | Char(10) | Village/Nagari code, starts with idkec |
+| idsls | Char(14)? | Sub-village/Korong code, optional |
 | createdAt | DateTime | |
 | updatedAt | DateTime | Auto-updated |
 
@@ -85,10 +88,10 @@ Admin accounts are managed directly in the database. There is no self-registrati
 | Field | Type | Notes |
 |-------|------|-------|
 | id | Int (PK) | Auto-increment |
-| kdkab | Char(4) | Required |
-| kdkec | Char(6)? | Optional — district level |
-| kddesa | Char(10)? | Optional — village level |
-| kdsls | Char(12)? | Optional — sub-village level |
+| idkab | Char(4) | Required |
+| idkec | Char(7)? | Optional — district level |
+| iddesa | Char(10)? | Optional — village level |
+| idsls | Char(14)? | Optional — sub-village level |
 | indikator | String | Indicator name (e.g. `Jumlah Penduduk`) |
 | nilai | Float | Numeric value |
 | satuan | String? | Unit (e.g. `jiwa`) |
@@ -97,10 +100,10 @@ Admin accounts are managed directly in the database. There is no self-registrati
 
 ### 4.5 Territory Hierarchy
 ```
-kdkab (4 digits)  →  1305
-  kdkec (6 digits)  →  130501
-    kddesa (10 digits)  →  1305010001
-      kdsls (12 digits)  →  130501000101
+idkab (4 digits)  →  1306
+  idkec (7 digits)  →  1306010
+    iddesa (10 digits)  →  1306010001
+      idsls (14 digits)  →  13060100010001
 ```
 
 ---
@@ -130,10 +133,10 @@ Base URL: `http://localhost:3000`
 | Param | Type | Description |
 |-------|------|-------------|
 | kategori | string | Comma-separated category values |
-| kdkab | string | Filter by regency code |
-| kdkec | string | Filter by district code |
-| kddesa | string | Filter by village code |
-| kdsls | string | Filter by sub-village code |
+| idkab | string | Filter by regency code |
+| idkec | string | Filter by district code |
+| iddesa | string | Filter by village code |
+| idsls | string | Filter by sub-village code |
 | search | string | Case-insensitive name search |
 | page | number | Page number (default: 1) |
 | limit | number | Items per page (omit for all) |
@@ -142,10 +145,10 @@ Base URL: `http://localhost:3000`
 
 | Param | Type | Description |
 |-------|------|-------------|
-| kdkab | string | Filter by regency code |
-| kdkec | string | Filter by district code |
-| kddesa | string | Filter by village code |
-| kdsls | string | Filter by sub-village code |
+| idkab | string | Filter by regency code |
+| idkec | string | Filter by district code |
+| iddesa | string | Filter by village code |
+| idsls | string | Filter by sub-village code |
 | tahun | number | Filter by year |
 | indikator | string | Case-insensitive indicator search |
 | page | number | Page number |
@@ -244,7 +247,7 @@ All page components are lazy-loaded with a spinner fallback.
 - `DonutChart` — donut/pie chart (Recharts)
 
 **Admin Components**
-- `FotoUpload` — drag-and-drop photo uploader with live preview; supports URL input as alternative; calls `POST /api/upload/foto`
+- `FotoUpload` — drag-and-drop photo uploader with inline crop editor (16:10 viewport, drag to pan, scroll/slider to zoom 1×–3×); saves crop metadata (`fotoCropX`, `fotoCropY`, `fotoCropZoom`) to DB — no second file generated; supports URL input as alternative; calls `POST /api/upload/foto`
 - `MapPicker` — click-on-map coordinate picker for infrastructure forms
 
 ### 6.4 Custom Hooks
@@ -301,6 +304,7 @@ GeoJSON boundary files are served from `client/public/geojson/`:
 **Infrastructure Popup**
 - Triggered by clicking a map marker
 - Shows: name, category badge (with color), address, photo (if available), latitude/longitude
+- Photo rendered using `object-position` and `scale` derived from crop metadata (`fotoCropX`, `fotoCropY`, `fotoCropZoom`); defaults to center/1× for legacy records without crop data
 
 **Statistics Panel**
 - Updates in real-time as territory filter changes
@@ -339,7 +343,7 @@ GeoJSON boundary files are served from `client/public/geojson/`:
 - Paginated table with search and filters (category, territory)
 - Create/Edit form fields: name, category (dropdown), address, photo, coordinates (lat/lng), territory codes
 - MapPicker: click on embedded map to set lat/lng coordinates
-- Photo upload: drag-and-drop or file picker (JPG/PNG/WebP, max 5MB); live preview with replace/remove actions; fallback to manual URL input
+- Photo upload: drag-and-drop or file picker (JPG/PNG/WebP, max 5MB); inline crop editor with 16:10 viewport, drag-to-pan, scroll/slider zoom (1×–3×), rule-of-thirds grid overlay; crop metadata stored in DB (`fotoCropX`, `fotoCropY`, `fotoCropZoom`) — no cropped file generated; existing photos can be re-cropped without re-uploading; fallback to manual URL input
 - Import from Excel: upload `.xlsx` file, row-level validation, returns success/error counts with per-row error messages
 - Export to Excel: filtered export with optional kdkec, kddesa, kategori filters
 
@@ -363,19 +367,19 @@ GeoJSON boundary files are served from `client/public/geojson/`:
 | D | `foto_url` | ❌ | External URL or `/uploads/...` path; leave blank to upload later |
 | E | `lat` | ✅ | Float, -90 to 90 |
 | F | `lng` | ✅ | Float, -180 to 180 |
-| G | `kdkab` | ✅ | Must be `1305` |
-| H | `kdkec` | ✅ | 6 digits, starts with `1305` |
-| I | `kddesa` | ✅ | 10 digits, starts with `kdkec` |
-| J | `kdsls` | ❌ | 12 digits, starts with `kddesa` |
+| G | `idkab` | ✅ | Must be `1306` |
+| H | `idkec` | ✅ | 7 digits, starts with `1306` |
+| I | `iddesa` | ✅ | 10 digits, starts with `idkec` |
+| J | `idsls` | ❌ | 14 digits, starts with `iddesa` |
 
 **Statistics Import Template**
 
 | Column | Header | Required | Notes |
 |--------|--------|----------|-------|
-| A | `kdkab` | ✅ | Regency code |
-| B | `kdkec` | ❌ | District code |
-| C | `kddesa` | ❌ | Village code |
-| D | `kdsls` | ❌ | Sub-village code |
+| A | `idkab` | ✅ | Regency code |
+| B | `idkec` | ❌ | District code |
+| C | `iddesa` | ❌ | Village code |
+| D | `idsls` | ❌ | Sub-village code |
 | E | `indikator` | ✅ | Indicator name |
 | F | `nilai` | ✅ | Numeric value |
 | G | `satuan` | ❌ | Unit |

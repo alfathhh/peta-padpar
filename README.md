@@ -69,6 +69,19 @@ CORS_ORIGIN="http://localhost:5173"
 npx prisma generate
 npx prisma migrate dev --name init
 npm run prisma:seed
+```
+
+**Setup GeoJSON** — file tidak di-commit ke repo, salin manual:
+
+```bash
+# Dari root repo
+cp client/src/assets/geojson/*.geojson server/data/geojson/
+```
+
+> File GeoJSON hanya tersimpan di `server/data/geojson/` dan di-serve via `GET /api/geojson/:layer`.
+> Tidak pernah dikirim sebagai bundle ke browser.
+
+```bash
 npm run dev
 ```
 

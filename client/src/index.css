@@ -5,75 +5,148 @@
 @layer base {
   html, body, #root { height: 100%; overflow: hidden; }
   html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  body { @apply bg-neutral-50 text-neutral-700 font-sans; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
-  *:focus-visible { @apply outline-none shadow-focus; }
-  h1,h2,h3,h4,h5,h6 { @apply font-display; }
+  body {
+    @apply bg-white text-neutral-800 font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  *:focus-visible { @apply outline-none ring-2 ring-primary-500/20 ring-offset-1; }
+  h1,h2,h3,h4,h5,h6 { @apply font-display tracking-tight; }
 }
 
+/* ═══ LEAFLET OVERRIDES ═══ */
 .leaflet-container { width: 100%; height: 100%; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-.custom-marker { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.25); color: white; }
-.custom-marker-inner { display: grid; place-items: center; width: 18px; height: 18px; transform: rotate(45deg); line-height: 1; }
-.custom-marker-inner svg { width: 18px; height: 18px; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18)); }
+
+.custom-marker {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  color: white;
+  transition: transform 150ms ease;
+}
+.custom-marker:hover { transform: rotate(-45deg) scale(1.1); }
+
+.custom-marker-inner {
+  display: grid; place-items: center;
+  width: 16px; height: 16px;
+  transform: rotate(45deg);
+  line-height: 1;
+}
+.custom-marker-inner svg { width: 16px; height: 16px; display: block; }
+
+/* Admin map picker pin */
 .admin-location-pin { background: transparent !important; border: 0 !important; }
-.admin-location-pin__halo { position: absolute; inset: 2px; border-radius: 999px; background: rgba(2,132,199,0.18); transform: scale(0.78); opacity: 0; transition: opacity 160ms ease, transform 160ms ease; }
-.admin-location-pin__body { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; border-radius: 50% 50% 50% 0; background: #0284c7; border: 3px solid #fff; box-shadow: 0 10px 24px rgba(15,23,42,0.28); transform: translate(-50%, -68%) rotate(-45deg); transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
-.admin-location-pin__body::after { content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 999px; background: #fff; transform: translate(-50%, -50%); box-shadow: inset 0 0 0 1px rgba(2,132,199,0.28); }
+.admin-location-pin__halo {
+  position: absolute; inset: 2px; border-radius: 999px;
+  background: rgba(12,132,243,0.12);
+  transform: scale(0.8); opacity: 0;
+  transition: all 200ms ease;
+}
+.admin-location-pin__body {
+  position: absolute; left: 50%; top: 50%;
+  width: 26px; height: 26px;
+  border-radius: 50% 50% 50% 0;
+  background: #0c84f3;
+  border: 2.5px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: translate(-50%, -68%) rotate(-45deg);
+  transition: all 200ms ease;
+}
+.admin-location-pin__body::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 7px; height: 7px; border-radius: 999px;
+  background: #fff; transform: translate(-50%, -50%);
+}
 .leaflet-marker-draggable.admin-location-pin { cursor: grab; }
 .leaflet-marker-draggable.admin-location-pin:active { cursor: grabbing; }
-.leaflet-marker-draggable.admin-location-pin:hover .admin-location-pin__halo,
-.leaflet-marker-draggable.admin-location-pin:active .admin-location-pin__halo { opacity: 1; transform: scale(1); }
-.leaflet-marker-draggable.admin-location-pin:hover .admin-location-pin__body { transform: translate(-50%, -74%) rotate(-45deg) scale(1.04); box-shadow: 0 14px 28px rgba(15,23,42,0.3); }
-.leaflet-marker-draggable.admin-location-pin:active .admin-location-pin__body { background: #0369a1; transform: translate(-50%, -78%) rotate(-45deg) scale(1.08); box-shadow: 0 18px 32px rgba(15,23,42,0.34); }
-.leaflet-popup-content-wrapper { border-radius: 20px !important; padding: 0 !important; overflow: hidden; min-width: 280px; max-width: 320px; box-shadow: 0 18px 50px rgba(15,23,42,0.18) !important; border: 1px solid rgba(226,232,240,0.85); }
+.leaflet-marker-draggable.admin-location-pin:hover .admin-location-pin__halo { opacity: 1; transform: scale(1); }
+.leaflet-marker-draggable.admin-location-pin:hover .admin-location-pin__body { transform: translate(-50%, -74%) rotate(-45deg) scale(1.05); }
+.leaflet-marker-draggable.admin-location-pin:active .admin-location-pin__body { background: #0066d1; transform: translate(-50%, -78%) rotate(-45deg) scale(1.08); }
+
+/* Popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important; padding: 0 !important;
+  overflow: hidden; min-width: 260px; max-width: 300px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+  border: 1px solid rgba(0,0,0,0.06);
+}
 .leaflet-popup-content { margin: 0 !important; width: 100% !important; }
 .leaflet-popup-tip-container { display: none !important; }
-.leaflet-popup-close-button { top: 10px !important; right: 10px !important; width: 28px !important; height: 28px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 999px !important; background: rgba(255,255,255,0.92) !important; color: #64748b !important; z-index: 10 !important; box-shadow: 0 4px 14px rgba(15,23,42,0.12); }
-.leaflet-popup-close-button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
-.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large { background-color: rgba(2,132,199,0.18) !important; }
-.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div { background-color: rgba(2,132,199,0.75) !important; color: white !important; font-weight: 700; }
-.leaflet-control-zoom { border: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; border-radius: 12px !important; overflow: hidden; }
-.leaflet-control-zoom a { width: 36px !important; height: 36px !important; line-height: 36px !important; color: #334155 !important; background: white !important; border-bottom: 1px solid #e2e8f0 !important; }
-.leaflet-control-zoom a:hover { background: #f8fafc !important; color: #0284c7 !important; }
-.panel-scroll, .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
-.panel-scroll::-webkit-scrollbar, .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-.panel-scroll::-webkit-scrollbar-thumb, .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 2px; }
-
-@layer utilities {
-  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(226,232,240,0.6); }
-  .bg-gradient-brand { background: linear-gradient(135deg, #075985 0%, #0284c7 50%, #0369a1 100%); }
+.leaflet-popup-close-button {
+  top: 8px !important; right: 8px !important;
+  width: 24px !important; height: 24px !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  border-radius: 6px !important;
+  background: rgba(255,255,255,0.95) !important;
+  color: #71717a !important; font-size: 14px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
+.leaflet-popup-close-button:hover { background: #f4f4f5 !important; color: #18181b !important; }
 
-.admin-table { @apply w-full text-sm; }
-.admin-page { @apply mx-auto w-full max-w-6xl space-y-4; }
-.admin-panel { @apply overflow-hidden rounded-xl border border-neutral-200/60 bg-white shadow-soft; }
-.admin-toolbar { @apply flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-white p-4 shadow-soft; }
-.admin-toolbar-end { @apply flex items-center justify-end rounded-xl border border-neutral-200/60 bg-white p-4 shadow-soft; }
-.admin-table thead tr { @apply bg-neutral-50 border-b border-neutral-200; }
-.admin-table thead th { @apply px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider whitespace-nowrap; }
-.admin-table tbody tr { @apply border-b border-neutral-100 transition-colors duration-150; }
-.admin-table tbody tr:hover { @apply bg-neutral-50/70; }
-.admin-table tbody td { @apply px-4 py-3 text-neutral-700; }
-.admin-table tbody tr:last-child { @apply border-b-0; }
+/* Zoom control */
+.leaflet-control-zoom {
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  border-radius: 8px !important; overflow: hidden;
+}
+.leaflet-control-zoom a {
+  width: 32px !important; height: 32px !important; line-height: 32px !important;
+  color: #3f3f46 !important; background: white !important;
+  border-bottom: 1px solid #e4e4e7 !important;
+  font-size: 14px !important;
+}
+.leaflet-control-zoom a:hover { background: #fafafa !important; color: #0c84f3 !important; }
+.leaflet-control-zoom a:last-child { border-bottom: none !important; }
 
-/* ── Tooltip wilayah (hover pada shape GeoJSON) ── */
+/* Scrollbar */
+.panel-scroll { scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent; }
+.panel-scroll::-webkit-scrollbar { width: 4px; }
+.panel-scroll::-webkit-scrollbar-thumb { background-color: #d4d4d8; border-radius: 2px; }
+.panel-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Wilayah tooltip */
 .wilayah-tooltip {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(24, 24, 27, 0.9);
   backdrop-filter: blur(4px);
-  border: none;
-  border-radius: 8px;
-  color: #f8fafc;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 10px;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border: none; border-radius: 6px;
+  color: #fafafa; font-size: 11px; font-weight: 500;
+  padding: 4px 8px; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   pointer-events: none;
 }
 .wilayah-tooltip::before { display: none; }
 
-/* ── Hilangkan focus outline pada SVG path Leaflet saat diklik ── */
 .leaflet-interactive:focus,
-.leaflet-interactive:focus-visible {
-  outline: none !important;
+.leaflet-interactive:focus-visible { outline: none !important; }
+
+/* ═══ ADMIN UTILITY CLASSES ═══ */
+@layer components {
+  .admin-table { @apply w-full text-sm; }
+  .admin-table thead tr { @apply border-b border-neutral-100; }
+  .admin-table thead th { @apply px-4 py-3 text-left text-xs font-medium text-neutral-500 whitespace-nowrap; }
+  .admin-table tbody tr { @apply border-b border-neutral-50 transition-colors duration-150; }
+  .admin-table tbody tr:hover { @apply bg-neutral-50; }
+  .admin-table tbody td { @apply px-4 py-3 text-neutral-700; }
+  .admin-table tbody tr:last-child { @apply border-b-0; }
+
+  .admin-page { @apply mx-auto w-full max-w-6xl space-y-5; }
+  .admin-panel { @apply overflow-hidden rounded-xl border border-neutral-200 bg-white; }
+  .admin-toolbar { @apply flex flex-wrap items-center justify-between gap-3; }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .glass {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .bg-gradient-brand {
+    background: linear-gradient(135deg, #0052a9 0%, #0c84f3 100%);
+  }
 }

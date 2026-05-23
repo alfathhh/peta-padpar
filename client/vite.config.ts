@@ -13,14 +13,6 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // Treat .geojson files as JSON so Rollup bundles them inline
-    {
-      name: 'geojson',
-      transform(code, id) {
-        if (!id.endsWith('.geojson')) return null;
-        return { code: `export default ${code}`, map: null };
-      },
-    },
   ],
   server: {
     port: 5173,
@@ -31,10 +23,6 @@ export default defineConfig({
       },
       '/uploads': {
         target: portApi,
-        changeOrigin: true,
-      },
-      '/uploads': {
-        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },

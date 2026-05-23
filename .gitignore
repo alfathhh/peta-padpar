@@ -33,5 +33,11 @@ testsprite_tests/
 server/uploads/images/*
 !server/uploads/images/.gitkeep
 
+# GeoJSON — disimpan di server/data/geojson/, JANGAN di client
+# Salin manual: cp client/src/assets/geojson/*.geojson server/data/geojson/
+client/src/assets/geojson/*.geojson
+server/data/geojson/*.geojson
+!server/data/geojson/.gitkeep
+
 # TypeScript cache
 *.tsbuildinfo

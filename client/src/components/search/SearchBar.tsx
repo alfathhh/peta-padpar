@@ -5,12 +5,7 @@ import { cn } from '../../lib/cn';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useMapStore } from '../../store/mapStore';
 import { useFilterStore } from '../../store/filterStore';
-import {
-  kabupatenGeoJSON,
-  kecamatanGeoJSON,
-  korongGeoJSON,
-  nagariGeoJSON,
-} from '../../assets/geojson';
+import { useGeoJSONLayer } from '../../hooks/useWilayahGeoJSON';
 import { NAMA_KABUPATEN } from '../../constants';
 import { Icon } from '../ui/Icon';
 
@@ -42,73 +37,6 @@ function normalizeText(value: string) {
   return value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function getWilayahOptions(): WilayahResult[] {
-  const kabupaten: WilayahResult = {
-    type: 'wilayah',
-    level: 'kabupaten',
-    kode: String(kabupatenGeoJSON.features[0]?.properties?.idkab ?? ''),
-    nama: NAMA_KABUPATEN,
-  };
-
-  const kecamatan = kecamatanGeoJSON.features
-    .map((feature): WilayahResult | null => {
-      const props = feature.properties;
-      const kode = String(props?.idkec ?? '');
-      if (!kode) return null;
-      return {
-        type: 'wilayah',
-        level: 'kecamatan',
-        kode,
-        idkec: kode,
-        nama: String(props?.nmkec ?? kode),
-      };
-    })
-    .filter((item): item is WilayahResult => !!item);
-
-  const nagari = nagariGeoJSON.features
-    .map((feature): WilayahResult | null => {
-      const props = feature.properties;
-      const kode = String(props?.iddesa ?? '');
-      const idkec = String(props?.idkec ?? '');
-      if (!kode) return null;
-      return {
-        type: 'wilayah',
-        level: 'nagari',
-        kode,
-        idkec,
-        iddesa: kode,
-        nama: String(props?.nmdesa ?? kode),
-      };
-    })
-    .filter((item): item is WilayahResult => !!item);
-
-  const korong = korongGeoJSON.features
-    .map((feature): WilayahResult | null => {
-      const props = feature.properties;
-      const kode = String(props?.idsls ?? '');
-      const iddesa = String(props?.iddesa ?? '');
-      const idkec = String(props?.idkec ?? iddesa.slice(0, 7));
-      if (!kode) return null;
-      return {
-        type: 'wilayah',
-        level: 'korong',
-        kode,
-        idkec,
-        iddesa,
-        idsls: kode,
-        nama: String(props?.nmsls ?? kode),
-      };
-    })
-    .filter((item): item is WilayahResult => !!item);
-
-  const unique = new Map<string, WilayahResult>();
-  [kabupaten, ...kecamatan, ...nagari, ...korong].forEach(item => {
-    unique.set(`${item.level}-${item.kode}`, item);
-  });
-
-  return Array.from(unique.values());
-}
-
 function levelLabel(level: WilayahLevel) {
   switch (level) {
     case 'kabupaten': return 'Kabupaten';
@@ -131,7 +59,84 @@ export default function SearchBar({ kategoriMap, className }: Props) {
   const mapInstance = useMapStore((state) => state.mapInstance);
   const { resetWilayah, setIdkec, setIddesa, setIdsls } = useFilterStore();
 
-  const wilayahOptions = useMemo(() => getWilayahOptions(), []);
+  // Fetch GeoJSON dari server untuk pencarian wilayah
+  const { data: kecamatanData } = useGeoJSONLayer('kecamatan');
+  const { data: nagariData } = useGeoJSONLayer('nagari');
+  const { data: korongData } = useGeoJSONLayer('korong');
+
+  const wilayahOptions = useMemo(() => {
+    const results: WilayahResult[] = [];
+
+    // Kabupaten (hardcoded — selalu ada)
+    results.push({
+      type: 'wilayah',
+      level: 'kabupaten',
+      kode: '1306',
+      nama: NAMA_KABUPATEN,
+    });
+
+    // Kecamatan
+    if (kecamatanData) {
+      for (const f of kecamatanData.features) {
+        const p = f.properties;
+        if (!p) continue;
+        const kode = String(p.idkec ?? '');
+        if (!kode) continue;
+        results.push({
+          type: 'wilayah',
+          level: 'kecamatan',
+          kode,
+          idkec: kode,
+          nama: String(p.nmkec ?? kode),
+        });
+      }
+    }
+
+    // Nagari
+    if (nagariData) {
+      for (const f of nagariData.features) {
+        const p = f.properties;
+        if (!p) continue;
+        const kode = String(p.iddesa ?? '');
+        const idkec = String(p.idkec ?? '');
+        if (!kode) continue;
+        results.push({
+          type: 'wilayah',
+          level: 'nagari',
+          kode,
+          idkec,
+          iddesa: kode,
+          nama: String(p.nmdesa ?? kode),
+        });
+      }
+    }
+
+    // Korong
+    if (korongData) {
+      for (const f of korongData.features) {
+        const p = f.properties;
+        if (!p) continue;
+        const kode = String(p.idsls ?? '');
+        const iddesa = String(p.iddesa ?? '');
+        const idkec = String(p.idkec ?? iddesa.slice(0, 6));
+        if (!kode) continue;
+        results.push({
+          type: 'wilayah',
+          level: 'korong',
+          kode,
+          idkec,
+          iddesa,
+          idsls: kode,
+          nama: String(p.nmsls ?? kode),
+        });
+      }
+    }
+
+    // Deduplicate
+    const unique = new Map<string, WilayahResult>();
+    results.forEach(item => unique.set(`${item.level}-${item.kode}`, item));
+    return Array.from(unique.values());
+  }, [kecamatanData, nagariData, korongData]);
 
   const wilayahResults = useMemo(() => {
     const keyword = normalizeText(debouncedQuery.trim());
@@ -156,7 +161,6 @@ export default function SearchBar({ kategoriMap, className }: Props) {
         setOpen(false);
       }
     }
-
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
@@ -237,7 +241,7 @@ export default function SearchBar({ kategoriMap, className }: Props) {
   return (
     <div ref={containerRef} className={cn('relative w-full', className)}>
       <div className="relative">
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
           <Icon name="search" className="h-4 w-4" />
         </span>
         <input
@@ -251,32 +255,31 @@ export default function SearchBar({ kategoriMap, className }: Props) {
             if (combinedResults.length || query) setOpen(true);
           }}
           placeholder="Cari infrastruktur atau wilayah..."
-          className="h-10 w-full rounded-xl border border-neutral-200 bg-white pl-11 pr-14 text-sm font-medium text-neutral-800 shadow-soft transition-all duration-250 placeholder:text-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-400/15 sm:h-11"
+          className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-12 text-sm text-neutral-800 transition-all placeholder:text-neutral-400 hover:border-neutral-300 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           aria-label="Cari infrastruktur atau wilayah"
           aria-autocomplete="list"
           aria-expanded={open}
           role="combobox"
         />
         {loading && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-primary-600">
-            Cari...
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary-600">
+            ...
           </span>
         )}
         {query && !loading && (
           <button
             type="button"
             onClick={clearSearch}
-            className="absolute right-1.5 top-1/2 inline-flex h-9 items-center gap-1.5 -translate-y-1/2 rounded-lg px-2 text-xs font-semibold text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+            className="absolute right-1.5 top-1/2 inline-flex h-6 w-6 items-center justify-center -translate-y-1/2 rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
             aria-label="Hapus pencarian"
           >
             <Icon name="x" className="h-3.5 w-3.5" />
-            Hapus
           </button>
         )}
       </div>
 
       {open && query && (
-        <div className="absolute left-0 right-0 top-full z-[1300] mt-2 max-h-80 overflow-y-auto rounded-2xl border border-neutral-200/80 bg-white p-1.5 shadow-pop panel-scroll">
+        <div className="absolute left-0 right-0 top-full z-[1300] mt-1.5 max-h-72 overflow-y-auto rounded-xl border border-neutral-200 bg-white p-1 shadow-pop panel-scroll">
           {combinedResults.length > 0 ? (
             combinedResults.map((result) => {
               if (result.type === 'wilayah') {
@@ -285,20 +288,17 @@ export default function SearchBar({ kategoriMap, className }: Props) {
                     key={`${result.level}-${result.kode}`}
                     type="button"
                     onClick={() => handleSelectWilayah(result)}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-neutral-50"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-neutral-50"
                     role="option"
                   >
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-50 text-primary-700">
-                      <Icon name="map-pin" className="h-4 w-4" />
+                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-50 text-primary-600 shrink-0">
+                      <Icon name="map-pin" className="h-3.5 w-3.5" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-neutral-900">{result.nama}</span>
+                      <span className="block truncate text-sm font-medium text-neutral-900">{result.nama}</span>
                       <span className="block truncate text-xs text-neutral-500">
-                        {levelLabel(result.level)} - {result.kode}
+                        {levelLabel(result.level)}
                       </span>
-                    </span>
-                    <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
-                      Wilayah
                     </span>
                   </button>
                 );
@@ -311,33 +311,24 @@ export default function SearchBar({ kategoriMap, className }: Props) {
                   key={`infra-${infra.id}`}
                   type="button"
                   onClick={() => handleSelectInfra(infra)}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-neutral-50"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-neutral-50"
                   role="option"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-neutral-700">
-                    <Icon name="building" className="h-4 w-4" />
+                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-100 text-neutral-600 shrink-0">
+                    <Icon name="building" className="h-3.5 w-3.5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-neutral-900">{infra.nama}</span>
+                    <span className="block truncate text-sm font-medium text-neutral-900">{infra.nama}</span>
                     <span className="block truncate text-xs text-neutral-500">
-                      {kategori?.label ?? 'Infrastruktur'}{infra.alamat ? ` - ${infra.alamat}` : ''}
+                      {kategori?.label ?? 'Infrastruktur'}{infra.alamat ? ` · ${infra.alamat}` : ''}
                     </span>
-                  </span>
-                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-600">
-                    Infra
                   </span>
                 </button>
               );
             })
           ) : (
-            <div className="px-4 py-4 text-sm text-neutral-500">
-              Tidak ada infrastruktur atau wilayah yang cocok.
-            </div>
-          )}
-
-          {infraError && wilayahResults.length > 0 && (
-            <div className="border-t border-neutral-100 px-4 py-3 text-xs text-neutral-500">
-              Hasil wilayah tetap tersedia. Data infrastruktur belum bisa dimuat.
+            <div className="px-3 py-4 text-center text-sm text-neutral-500">
+              Tidak ditemukan.
             </div>
           )}
         </div>

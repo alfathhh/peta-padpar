@@ -9,6 +9,7 @@ const NAV: Array<{ to: string; label: string; end: boolean; icon: IconName }> = 
   { to: '/admin/infrastruktur', label: 'Infrastruktur', end: false, icon: 'database' },
   { to: '/admin/kategori', label: 'Kategori', end: false, icon: 'tag' },
   { to: '/admin/statistik', label: 'Statistik', end: false, icon: 'chart' },
+  { to: '/admin/geojson', label: 'GeoJSON', end: false, icon: 'layers' },
 ];
 
 export default function AdminLayout({ children, title }: { children: React.ReactNode; title?: string }) {

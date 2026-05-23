@@ -1,23 +1,25 @@
-import React from 'react';
-import { Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import { useMap } from 'react-leaflet';
+import ReactDOMServer from 'react-dom/server';
 import { Infrastruktur, KategoriInfra } from '../../types';
 import { createCustomMarker } from '../../lib/gis/createCustomMarker';
-import CustomMapPopout from './CustomMapPopout';
+import InfraPopup from './InfraPopup';
 
 interface MarkerLayerProps {
   infrastruktur: Infrastruktur[];
   kategoriMap: Map<string, KategoriInfra>;
 }
 
-// Layer marker infrastruktur
+function createMarkerIcon(kat: KategoriInfra): L.DivIcon {
+  return createCustomMarker({ categoryValue: kat.value, kategori: kat });
+}
+
 export default function MarkerLayer({ infrastruktur, kategoriMap }: MarkerLayerProps) {
-  return (
-    <>
-      {infrastruktur.map((infra) => {
-        const kat = kategoriMap.get(infra.kategori);
+  const map = useMap();
+  const layerGroupRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
-    // Bersihkan layer lama
     if (layerGroupRef.current) {
       layerGroupRef.current.clearLayers();
       map.removeLayer(layerGroupRef.current);
@@ -40,7 +42,7 @@ export default function MarkerLayer({ infrastruktur, kategoriMap }: MarkerLayerP
       );
 
       marker.bindPopup(popupContent, {
-        maxWidth: 320,
+        maxWidth: 300,
         className: 'infra-popup',
       });
 

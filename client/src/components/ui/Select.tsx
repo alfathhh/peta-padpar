@@ -2,17 +2,6 @@ import React, { useId } from 'react';
 import { cn } from '../../lib/cn';
 import { Icon } from './Icon';
 
-/**
- * Select — wrapper konsisten untuk <select> native.
- * Cocok untuk cascade dropdown wilayah.
- *
- * Contoh:
- *   <Select label="Kecamatan" value={idkec} onChange={...}>
- *     <option value="">Semua Kecamatan</option>
- *     {kecamatan.map(k => <option key={k.idkec} value={k.idkec}>{k.nama}</option>)}
- *   </Select>
- */
-
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
@@ -41,7 +30,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             className="block text-sm font-medium text-neutral-700 mb-1.5"
           >
             {label}
-            {required && <span className="text-danger-500 ml-0.5" aria-hidden="true">*</span>}
+            {required && <span className="text-danger-500 ml-0.5">*</span>}
           </label>
         )}
 
@@ -54,13 +43,13 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             aria-invalid={!!error}
             aria-describedby={describedBy}
             className={cn(
-              'w-full h-10 rounded-xl border bg-white text-sm text-neutral-900',
-              'px-3.5 pr-10 appearance-none',
-              'transition-colors duration-250',
-              'focus:outline-none focus-visible:shadow-focus',
+              'w-full h-9 rounded-lg border bg-white text-sm text-neutral-900',
+              'px-3 pr-9 appearance-none',
+              'transition-all duration-150',
+              'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
               error
-                ? 'border-danger-500 focus:border-danger-500'
-                : 'border-neutral-200 focus:border-primary-500',
+                ? 'border-danger-500 focus:ring-danger-500/20 focus:border-danger-500'
+                : 'border-neutral-200 hover:border-neutral-300',
               disabled && 'bg-neutral-50 text-neutral-400 cursor-not-allowed',
               className,
             )}
@@ -68,13 +57,13 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           >
             {children}
           </select>
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
-            <Icon name="chevron-down" className="h-4 w-4" />
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400">
+            <Icon name="chevron-down" className="h-3.5 w-3.5" />
           </span>
         </div>
 
         {error && (
-          <p id={`${selectId}-error`} className="mt-1.5 text-xs text-danger-500">
+          <p id={`${selectId}-error`} className="mt-1.5 text-xs text-danger-600">
             {error}
           </p>
         )}

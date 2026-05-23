@@ -1,64 +1,34 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 
-/**
- * Badge — label kecil untuk kategori, status, dll.
- *
- * Dua mode:
- * 1. Varian preset: <Badge variant="success">Aktif</Badge>
- * 2. Warna kustom dari API: <Badge color={kategori.color}>{kategori.label}</Badge>
- *    → otomatis hitung background tipis (10% opacity) dan teks gelap
- */
+type BadgeVariant = 'primary' | 'neutral' | 'success' | 'warning' | 'danger';
 
-type Variant = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
-
-export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'> {
-  variant?: Variant;
-  /** Hex warna dari API (cth: "#F97316"). Override variant jika diisi. */
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  variant?: BadgeVariant;
   color?: string;
-  size?: 'sm' | 'md';
 }
 
-const VARIANT_CLASSES: Record<Variant, string> = {
-  neutral: 'bg-neutral-100 text-neutral-700',
-  primary: 'bg-primary-50 text-primary-700',
-  success: 'bg-success-50 text-success-600',
-  warning: 'bg-warning-50 text-warning-600',
-  danger:  'bg-danger-50 text-danger-600',
+const VARIANT_CLASSES: Record<BadgeVariant, string> = {
+  primary: 'bg-primary-50 text-primary-700 border-primary-100',
+  neutral: 'bg-neutral-100 text-neutral-600 border-neutral-200',
+  success: 'bg-success-50 text-success-700 border-success-100',
+  warning: 'bg-warning-50 text-warning-700 border-warning-100',
+  danger:  'bg-danger-50 text-danger-700 border-danger-100',
 };
 
-const SIZE_CLASSES = {
-  sm: 'h-5 px-2 text-[10px] gap-1',
-  md: 'h-6 px-2.5 text-xs gap-1.5',
-};
-
-export function Badge({
-  variant = 'neutral',
-  color,
-  size = 'md',
-  className,
-  style,
-  children,
-  ...rest
-}: BadgeProps) {
-  // Mode warna kustom (dari API kategori): inline style background + text
-  const customStyle: React.CSSProperties | undefined = color
-    ? {
-        backgroundColor: `${color}1A`, // hex + 1A (~10% opacity)
-        color,
-        ...style,
-      }
+export function Badge({ variant = 'neutral', color, className, children, style, ...rest }: BadgeProps) {
+  const dynamicStyle = color
+    ? { backgroundColor: `${color}10`, color, borderColor: `${color}25`, ...style }
     : style;
 
   return (
     <span
       className={cn(
-        'inline-flex items-center font-medium rounded-full whitespace-nowrap',
-        SIZE_CLASSES[size],
+        'inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md border',
         !color && VARIANT_CLASSES[variant],
         className,
       )}
-      style={customStyle}
+      style={dynamicStyle}
       {...rest}
     >
       {children}

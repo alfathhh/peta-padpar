@@ -1,6 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-// Design tokens — Tema "Bumi Tabuik" (lihat PRD-UI-REFRESH.md §6)
-// Inspirasi: pesisir Padang Pariaman (laut, pasir, tradisi tabuik)
 export default {
   content: [
     "./index.html",
@@ -8,103 +6,115 @@ export default {
   ],
   theme: {
     extend: {
-      // ===== WARNA =====
       colors: {
         primary: {
-          50:  '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0284c7',  // aksi utama, link
-          600: '#0369a1',  // hover
-          700: '#075985',  // active
-          800: '#0c4a6e',
-          900: '#082f49',
-        },
-        accent: {
-          50:  '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',  // CTA sekunder, highlight (pasir/tabuik)
-          600: '#d97706',
-          700: '#b45309',
+          50:  '#f0f7ff',
+          100: '#e0efff',
+          200: '#b9dfff',
+          300: '#7cc4ff',
+          400: '#36a5ff',
+          500: '#0c84f3',
+          600: '#0066d1',
+          700: '#0052a9',
+          800: '#04468b',
+          900: '#0a3b73',
+          950: '#06254d',
         },
         neutral: {
-          50:  '#f8fafc',  // background utama
-          100: '#f1f5f9',  // background card sekunder
-          200: '#e2e8f0',  // border
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',  // teks sekunder
-          600: '#475569',
-          700: '#334155',  // teks utama
-          800: '#1e293b',
-          900: '#0f172a',  // heading
+          50:  '#fafafa',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b',
+          950: '#09090b',
         },
         success: {
           50:  '#f0fdf4',
-          500: '#16a34a',
-          600: '#15803d',
+          100: '#dcfce7',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
         },
         warning: {
-          50:  '#fefce8',
-          500: '#eab308',
-          600: '#ca8a04',
+          50:  '#fffbeb',
+          100: '#fef3c7',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
         },
         danger: {
           50:  '#fef2f2',
-          500: '#dc2626',
-          600: '#b91c1c',
+          100: '#fee2e2',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+        },
+        accent: {
+          50:  '#faf5ff',
+          100: '#f3e8ff',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7e22ce',
         },
       },
 
-      // ===== TIPOGRAFI =====
       fontFamily: {
-        sans:    ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
 
-      // ===== RADIUS =====
       borderRadius: {
+        'lg':  '0.625rem',
         'xl':  '0.875rem',
-        '2xl': '1.25rem',
+        '2xl': '1rem',
+        '3xl': '1.25rem',
       },
 
-      // ===== SHADOW =====
       boxShadow: {
-        'soft':  '0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.06)',
-        'pop':   '0 4px 16px rgb(0 0 0 / 0.08), 0 8px 32px rgb(0 0 0 / 0.06)',
-        'focus': '0 0 0 3px rgb(2 132 199 / 0.35)',
+        'xs':    '0 1px 2px 0 rgb(0 0 0 / 0.03)',
+        'soft':  '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)',
+        'md':    '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)',
+        'pop':   '0 10px 25px -3px rgb(0 0 0 / 0.08), 0 4px 10px -4px rgb(0 0 0 / 0.04)',
+        'lg':    '0 20px 40px -8px rgb(0 0 0 / 0.1)',
+        'focus': '0 0 0 2px rgb(12 132 243 / 0.2)',
+        'brand': '0 4px 14px 0 rgb(12 132 243 / 0.3)',
       },
 
-      // ===== MOTION =====
       transitionDuration: {
+        '150': '150ms',
+        '200': '200ms',
         '250': '250ms',
       },
 
-      // ===== ANIMASI KUSTOM =====
       keyframes: {
         'fade-in': {
           '0%':   { opacity: '0' },
           '100%': { opacity: '1' },
         },
         'slide-up': {
-          '0%':   { opacity: '0', transform: 'translateY(8px)' },
+          '0%':   { opacity: '0', transform: 'translateY(12px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         'slide-down': {
           '0%':   { opacity: '0', transform: 'translateY(-8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'scale-in': {
+          '0%':   { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
-        'fade-in':    'fade-in 200ms ease-out',
-        'slide-up':   'slide-up 250ms ease-out',
-        'slide-down': 'slide-down 250ms ease-out',
+        'fade-in':    'fade-in 150ms ease-out',
+        'slide-up':   'slide-up 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-down': 'slide-down 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'scale-in':   'scale-in 150ms cubic-bezier(0.16, 1, 0.3, 1)',
       },
     },
   },

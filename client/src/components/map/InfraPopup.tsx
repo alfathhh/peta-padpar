@@ -22,11 +22,11 @@ export default function InfraPopup({ infra, kategori, onClose }: Props) {
           <img
             src={fotoUrl}
             alt={infra.nama}
-            className="aspect-square w-full bg-neutral-100 object-cover"
+            className="aspect-[16/10] w-full bg-neutral-100 object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="grid aspect-square w-full place-items-center bg-neutral-100">
+          <div className="grid aspect-[16/10] w-full place-items-center bg-neutral-100">
             <div
               className="grid h-14 w-14 place-items-center rounded-2xl"
               style={{ backgroundColor: `${warnaKategori}18`, color: warnaKategori }}

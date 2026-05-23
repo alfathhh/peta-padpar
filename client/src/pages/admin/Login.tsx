@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import api from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { Icon } from '../../components/ui/Icon';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -31,35 +32,58 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-neutral-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
       <div className="w-full max-w-sm">
+        {/* Logo & Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 shadow-brand mb-4">
-            
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-brand shadow-brand mb-4">
+            <Icon name="layers" className="h-5 w-5 text-white" />
           </div>
-          <h1 className="text-xl font-display font-bold text-neutral-900">Portal Admin</h1>
+          <h1 className="text-lg font-semibold text-neutral-900">Masuk ke Admin Panel</h1>
           <p className="text-sm text-neutral-500 mt-1">Peta Tematik Kabupaten Padang Pariaman</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-soft border border-neutral-100 p-6">
+
+        {/* Login Card */}
+        <div className="bg-white rounded-xl border border-neutral-200 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700 flex items-start gap-2">
-                
-                {error}
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-danger-50 border border-danger-100 text-sm text-danger-700">
+                <Icon name="x" className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
               </div>
             )}
-            <div className="space-y-1">
-              <label htmlFor="username" className="text-xs font-medium text-neutral-700">Username</label>
-              <Input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Masukkan username" autoComplete="username" required />
-            </div>
-            <div className="space-y-1">
-              <label htmlFor="password" className="text-xs font-medium text-neutral-700">Password</label>
-              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required />
-            </div>
-            <Button type="submit" isLoading={loading} className="w-full">Masuk</Button>
+
+            <Input
+              id="username"
+              label="Username"
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Masukkan username"
+              autoComplete="username"
+              required
+            />
+
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Masukkan password"
+              autoComplete="current-password"
+              required
+            />
+
+            <Button type="submit" isLoading={loading} fullWidth size="lg">
+              Masuk
+            </Button>
           </form>
         </div>
-        <p className="text-center text-xs text-neutral-400 mt-6">© 2025 Dinas PUPR Kabupaten Padang Pariaman</p>
+
+        <p className="text-center text-xs text-neutral-400 mt-6">
+          &copy; 2025 Dinas PUPR Kabupaten Padang Pariaman
+        </p>
       </div>
     </div>
   );

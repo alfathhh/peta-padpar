@@ -9,14 +9,15 @@ const Dashboard          = React.lazy(() => import('./pages/admin/Dashboard'));
 const AdminKategori      = React.lazy(() => import('./pages/admin/Kategori'));
 const AdminInfrastruktur = React.lazy(() => import('./pages/admin/Infrastruktur'));
 const AdminStatistik     = React.lazy(() => import('./pages/admin/Statistik'));
+const AdminGeoJSON       = React.lazy(() => import('./pages/admin/GeoJSON'));
 const NotFound           = React.lazy(() => import('./pages/NotFound'));
 
 function PageLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+    <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center">
-        <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-sm text-neutral-500 font-medium">Memuat halaman...</p>
+        <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-neutral-500">Memuat...</p>
       </div>
     </div>
   );
@@ -29,12 +30,15 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, Error
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-4">
-          <div className="bg-white rounded-2xl shadow-pop p-8 max-w-sm w-full text-center">
-            <div className="text-5xl mb-4">⚠️</div>
-            <h2 className="font-display font-semibold text-xl text-neutral-900 mb-2">Terjadi Kesalahan</h2>
+        <div className="min-h-screen flex items-center justify-center bg-white p-4">
+          <div className="max-w-sm w-full text-center">
+            <p className="text-4xl font-bold text-neutral-200 mb-4">Oops</p>
+            <h2 className="font-semibold text-lg text-neutral-900 mb-2">Terjadi Kesalahan</h2>
             <p className="text-sm text-neutral-500 mb-6">Halaman mengalami error yang tidak terduga.</p>
-            <button onClick={() => window.location.reload()} className="inline-flex items-center justify-center h-10 px-6 rounded-xl bg-primary-500 text-white text-sm font-medium hover:bg-primary-600 transition-colors">
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center h-9 px-4 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
+            >
               Muat Ulang
             </button>
           </div>
@@ -71,6 +75,7 @@ export default function App() {
               <Route path="/admin/kategori" element={<ProtectedRoute><AdminKategori /></ProtectedRoute>} />
               <Route path="/admin/infrastruktur" element={<ProtectedRoute><AdminInfrastruktur /></ProtectedRoute>} />
               <Route path="/admin/statistik" element={<ProtectedRoute><AdminStatistik /></ProtectedRoute>} />
+              <Route path="/admin/geojson" element={<ProtectedRoute><AdminGeoJSON /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </React.Suspense>

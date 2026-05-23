@@ -9,6 +9,7 @@ const NAV: Array<{ to: string; label: string; end: boolean; icon: IconName }> = 
   { to: '/admin/infrastruktur', label: 'Infrastruktur', end: false, icon: 'database' },
   { to: '/admin/kategori', label: 'Kategori', end: false, icon: 'tag' },
   { to: '/admin/statistik', label: 'Statistik', end: false, icon: 'chart' },
+  { to: '/admin/geojson', label: 'GeoJSON', end: false, icon: 'layers' },
 ];
 
 export default function AdminLayout({ children, title }: { children: React.ReactNode; title?: string }) {
@@ -23,57 +24,62 @@ export default function AdminLayout({ children, title }: { children: React.React
   }
 
   return (
-    <div className="flex min-h-screen bg-neutral-100">
+    <div className="flex min-h-screen bg-neutral-50">
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-neutral-900/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px] lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r border-neutral-200/60 bg-white shadow-soft transition-transform duration-250',
-          'lg:static lg:z-auto lg:translate-x-0 lg:shadow-none',
+          'fixed left-0 top-0 z-50 flex h-full w-60 flex-col bg-white border-r border-neutral-200 transition-transform duration-200 ease-out',
+          'lg:static lg:z-auto lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-4">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-brand">
-            <span className="select-none text-sm font-bold text-white">PP</span>
+        {/* Brand */}
+        <div className="flex items-center gap-2.5 px-5 h-14 border-b border-neutral-100">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-brand">
+            <span className="text-[10px] font-bold text-white">PP</span>
           </div>
           <div className="min-w-0">
-            <div className="truncate font-display text-sm font-bold text-neutral-900">Admin Panel</div>
-            <div className="truncate text-[10px] text-neutral-400">Padang Pariaman</div>
+            <div className="text-sm font-semibold text-neutral-900">Peta Padpar</div>
+            <div className="text-[10px] text-neutral-400">Admin Panel</div>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) => cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
+                'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150',
                 isActive
-                  ? 'border-l-[3px] border-primary-500 bg-primary-50 pl-[9px] text-primary-700'
-                  : 'border-l-[3px] border-transparent text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+                  ? 'bg-primary-50 text-primary-700'
+                  : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
               )}
             >
-              <Icon name={item.icon} className="h-4 w-4" />
+              <Icon name={item.icon} className="h-4 w-4 shrink-0" />
               <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
+        {/* User / Logout */}
         <div className="border-t border-neutral-100 p-3">
-          <div className="mb-1 flex items-center gap-3 px-3 py-2">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-100">
-              <span className="text-xs font-bold text-primary-700">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
+          <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-100">
+              <span className="text-[11px] font-semibold text-neutral-600">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-semibold text-neutral-900">{user?.username || 'Admin'}</div>
+              <div className="truncate text-xs font-medium text-neutral-900">{user?.username || 'Admin'}</div>
               <div className="text-[10px] text-neutral-400">Administrator</div>
             </div>
           </div>
@@ -81,7 +87,7 @@ export default function AdminLayout({ children, title }: { children: React.React
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-danger-600 transition-colors hover:bg-danger-50 focus:outline-none focus-visible:shadow-focus"
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-danger-600 transition-colors"
           >
             <Icon name="log-out" className="h-4 w-4" />
             <span>Keluar</span>
@@ -89,20 +95,23 @@ export default function AdminLayout({ children, title }: { children: React.React
         </div>
       </aside>
 
+      {/* Main content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-neutral-200/60 bg-white px-4 py-3 shadow-soft lg:px-6">
+        {/* Header */}
+        <header className="sticky top-0 z-30 flex items-center gap-3 h-14 border-b border-neutral-200 bg-white px-4 lg:px-6">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-neutral-600 hover:bg-neutral-100 lg:hidden"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-neutral-600 hover:bg-neutral-100 lg:hidden"
+            aria-label="Menu"
           >
             <Icon name="menu" className="h-4 w-4" />
-            <span>Menu</span>
           </button>
-          <h1 className="font-display text-sm font-semibold text-neutral-900">{title || 'Admin Panel'}</h1>
+          <h1 className="text-sm font-semibold text-neutral-900">{title || 'Admin Panel'}</h1>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 lg:p-6 lg:p-8">
+        {/* Page content */}
+        <main className="flex-1 overflow-auto p-4 lg:p-6">
           {children ?? <Outlet />}
         </main>
       </div>

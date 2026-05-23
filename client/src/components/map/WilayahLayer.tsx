@@ -2,11 +2,7 @@ import { useEffect, useMemo, useCallback, useRef } from 'react';
 import { GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useFilterStore } from '../../store/filterStore';
-import {
-  kecamatanGeoJSON,
-  nagariGeoJSON,
-  korongGeoJSON,
-} from '../../assets/geojson';
+import { useGeoJSONLayer } from '../../hooks/useWilayahGeoJSON';
 
 const STYLE_KECAMATAN = { color: '#10B981', weight: 1.5, fillOpacity: 0.06 };
 const STYLE_NAGARI    = { color: '#F59E0B', weight: 1.5, fillOpacity: 0.08 };
@@ -16,35 +12,7 @@ const STYLE_HOVER     = { weight: 3, fillOpacity: 0.22 };
 const FIT_PADDING: L.PointTuple = [32, 32];
 const SELECTED_PADDING: L.PointTuple = [56, 56];
 
-/* ─────────── Pre-indexing: dibangun sekali di module load ───────────
- * Index by parent code untuk lookup O(1) saat klik filter,
- * menggantikan .filter() linear yang lambat di array besar.
- */
-const NAGARI_BY_KEC: Map<string, GeoJSON.Feature[]> = (() => {
-  const m = new Map<string, GeoJSON.Feature[]>();
-  for (const f of nagariGeoJSON.features) {
-    const k = String(f.properties?.idkec ?? '');
-    if (!k) continue;
-    const arr = m.get(k);
-    if (arr) arr.push(f);
-    else m.set(k, [f]);
-  }
-  return m;
-})();
-
-const KORONG_BY_NAGARI: Map<string, GeoJSON.Feature[]> = (() => {
-  const m = new Map<string, GeoJSON.Feature[]>();
-  for (const f of korongGeoJSON.features) {
-    const k = String(f.properties?.iddesa ?? '');
-    if (!k) continue;
-    const arr = m.get(k);
-    if (arr) arr.push(f);
-    else m.set(k, [f]);
-  }
-  return m;
-})();
-
-/* Cache bounds per FeatureCollection — hindari membuat L.geoJSON() temporary berulang */
+/* Cache bounds per FeatureCollection */
 const BOUNDS_CACHE = new WeakMap<GeoJSON.FeatureCollection, L.LatLngBounds | null>();
 
 function getBoundsCached(fc: GeoJSON.FeatureCollection): L.LatLngBounds | null {
@@ -67,13 +35,7 @@ function smoothFitBounds(map: L.Map, bounds: L.LatLngBounds, padding: L.PointTup
     map.fitBounds(bounds, { padding, animate: false });
     return;
   }
-
-  map.flyToBounds(bounds, {
-    padding,
-    animate: true,
-    duration: 0.75,
-    easeLinearity: 0.2,
-  });
+  map.flyToBounds(bounds, { padding, animate: true, duration: 0.75, easeLinearity: 0.2 });
 }
 
 export default function WilayahLayer() {
@@ -83,34 +45,66 @@ export default function WilayahLayer() {
   const hasMountedRef = useRef(false);
   const isClickNavigationRef = useRef(false);
 
+  // Selalu load semua layer — cache in-memory, fetch hanya sekali
+  const { data: kecamatanData } = useGeoJSONLayer('kecamatan');
+  const { data: nagariData }    = useGeoJSONLayer('nagari');
+  const { data: korongData }    = useGeoJSONLayer('korong');
+
+  // Pre-index nagari by idkec dan korong by iddesa
+  const nagariByKec = useMemo(() => {
+    const m = new Map<string, GeoJSON.Feature[]>();
+    if (!nagariData) return m;
+    for (const f of nagariData.features) {
+      const k = String(f.properties?.idkec ?? '');
+      if (!k) continue;
+      const arr = m.get(k);
+      if (arr) arr.push(f);
+      else m.set(k, [f]);
+    }
+    return m;
+  }, [nagariData]);
+
+  const korongByNagari = useMemo(() => {
+    const m = new Map<string, GeoJSON.Feature[]>();
+    if (!korongData) return m;
+    for (const f of korongData.features) {
+      const k = String(f.properties?.iddesa ?? '');
+      if (!k) continue;
+      const arr = m.get(k);
+      if (arr) arr.push(f);
+      else m.set(k, [f]);
+    }
+    return m;
+  }, [korongData]);
+
   const { displayData, baseStyle, level } = useMemo(() => {
     if (iddesa) {
-      const features = KORONG_BY_NAGARI.get(iddesa) ?? [];
+      const features = korongByNagari.get(iddesa) ?? [];
       const fc: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
       return { displayData: fc, baseStyle: STYLE_KORONG, level: 'korong' as const };
     }
     if (idkec) {
-      const features = NAGARI_BY_KEC.get(idkec) ?? [];
+      const features = nagariByKec.get(idkec) ?? [];
       const fc: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features };
       return { displayData: fc, baseStyle: STYLE_NAGARI, level: 'nagari' as const };
     }
-    return { displayData: kecamatanGeoJSON, baseStyle: STYLE_KECAMATAN, level: 'kecamatan' as const };
-  }, [idkec, iddesa]);
+    const fc = kecamatanData ?? { type: 'FeatureCollection' as const, features: [] };
+    return { displayData: fc, baseStyle: STYLE_KECAMATAN, level: 'kecamatan' as const };
+  }, [idkec, iddesa, kecamatanData, nagariByKec, korongByNagari]);
 
-  // fitBounds saat level/wilayah berubah — animate:false agar tidak ada delay animasi
+  // fitBounds saat level/wilayah berubah
   useEffect(() => {
+    if (!displayData.features.length) return;
     const bounds = getBoundsCached(displayData);
     if (!bounds) return;
-
     smoothFitBounds(map, bounds, FIT_PADDING, hasMountedRef.current || isClickNavigationRef.current);
     hasMountedRef.current = true;
     isClickNavigationRef.current = false;
   }, [displayData, map]);
 
-  // Highlight korong terpilih tanpa re-render seluruh layer
+  // Highlight korong terpilih
   useEffect(() => {
     if (level !== 'korong' || !geoJsonRef.current) return;
-
     geoJsonRef.current.eachLayer((layer) => {
       const feature = (layer as L.Layer & { feature?: GeoJSON.Feature }).feature;
       if (!feature?.properties) return;

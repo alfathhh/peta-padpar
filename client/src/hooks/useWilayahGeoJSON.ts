@@ -1,26 +1,63 @@
 /**
- * Hooks untuk mengambil daftar wilayah langsung dari GeoJSON yang sudah di-bundle.
- * Tidak perlu API call — data sudah ada di client.
- * Menggunakan idkec / iddesa / idsls sebagai value (kode BPS penuh).
+ * Hooks untuk mengambil daftar wilayah dari GeoJSON yang di-fetch dari server.
+ * GeoJSON tidak lagi di-bundle ke client — disimpan di server/data/geojson/
+ * dan di-serve melalui GET /api/geojson/:layer.
  */
 
-import { useMemo } from 'react';
-import {
-  kecamatanGeoJSON,
-  nagariGeoJSON,
-  korongGeoJSON,
-} from '../assets/geojson';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import api from '../lib/api';
 
 export interface WilayahItem {
-  kode: string;   // idkec / iddesa / idsls
-  nama: string;   // nmkec / nmdesa / nmsls
+  kode: string;
+  nama: string;
 }
 
-/** Daftar kecamatan unik dari kecamatan.geojson */
+type LayerName = 'kecamatan' | 'nagari' | 'korong';
+
+// Cache in-memory per layer — cegah fetch ulang saat komponen re-mount
+const geoJsonCache = new Map<string, GeoJSON.FeatureCollection>();
+
+async function fetchGeoJSON(layer: LayerName): Promise<GeoJSON.FeatureCollection> {
+  const cached = geoJsonCache.get(layer);
+  if (cached) return cached;
+  const res = await api.get<GeoJSON.FeatureCollection>(`/geojson/${layer}`);
+  geoJsonCache.set(layer, res.data);
+  return res.data;
+}
+
+/** Hook generik untuk load GeoJSON layer dari server */
+export function useGeoJSONLayer(layer: LayerName) {
+  const [data, setData] = useState<GeoJSON.FeatureCollection | null>(
+    () => geoJsonCache.get(layer) ?? null
+  );
+  const [loading, setLoading] = useState(!geoJsonCache.has(layer));
+
+  useEffect(() => {
+    if (geoJsonCache.has(layer)) {
+      setData(geoJsonCache.get(layer)!);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    fetchGeoJSON(layer).then(fc => {
+      if (!cancelled) { setData(fc); setLoading(false); }
+    }).catch(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [layer]);
+
+  return { data, loading };
+}
+
+/** Daftar kecamatan unik — diambil dari kecamatan.geojson via server */
 export function useKecamatanGeoJSON(): WilayahItem[] {
+  const { data } = useGeoJSONLayer('kecamatan');
   return useMemo(() => {
+    if (!data) return [];
     const map = new Map<string, string>();
-    kecamatanGeoJSON.features.forEach((f) => {
+    data.features.forEach((f) => {
       const p = f.properties;
       if (!p) return;
       const kode = String(p.idkec ?? '');
@@ -29,16 +66,17 @@ export function useKecamatanGeoJSON(): WilayahItem[] {
     });
     return Array.from(map.entries())
       .map(([kode, nama]) => ({ kode, nama }))
-      .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-  }, []);
+      .sort((a, b) => a.kode.localeCompare(b.kode));
+  }, [data]);
 }
 
-/** Daftar nagari unik dalam kecamatan tertentu (filter by idkec) */
+/** Daftar nagari unik dalam kecamatan tertentu */
 export function useNagariGeoJSON(idkec: string): WilayahItem[] {
+  const { data } = useGeoJSONLayer('nagari');
   return useMemo(() => {
-    if (!idkec) return [];
+    if (!data || !idkec) return [];
     const map = new Map<string, string>();
-    nagariGeoJSON.features.forEach((f) => {
+    data.features.forEach((f) => {
       const p = f.properties;
       if (!p || String(p.idkec) !== idkec) return;
       const kode = String(p.iddesa ?? '');
@@ -47,16 +85,17 @@ export function useNagariGeoJSON(idkec: string): WilayahItem[] {
     });
     return Array.from(map.entries())
       .map(([kode, nama]) => ({ kode, nama }))
-      .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-  }, [idkec]);
+      .sort((a, b) => a.kode.localeCompare(b.kode));
+  }, [data, idkec]);
 }
 
-/** Daftar korong unik dalam nagari tertentu (filter by iddesa) */
+/** Daftar korong unik dalam nagari tertentu */
 export function useKorongGeoJSON(iddesa: string): WilayahItem[] {
+  const { data } = useGeoJSONLayer('korong');
   return useMemo(() => {
-    if (!iddesa) return [];
+    if (!data || !iddesa) return [];
     const map = new Map<string, string>();
-    korongGeoJSON.features.forEach((f) => {
+    data.features.forEach((f) => {
       const p = f.properties;
       if (!p || String(p.iddesa) !== iddesa) return;
       const kode = String(p.idsls ?? '');
@@ -65,6 +104,6 @@ export function useKorongGeoJSON(iddesa: string): WilayahItem[] {
     });
     return Array.from(map.entries())
       .map(([kode, nama]) => ({ kode, nama }))
-      .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-  }, [iddesa]);
+      .sort((a, b) => a.kode.localeCompare(b.kode));
+  }, [data, iddesa]);
 }

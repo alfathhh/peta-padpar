@@ -161,7 +161,8 @@ export function FotoUpload({ value, onChange }: FotoUploadProps) {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* ═══ DROP ZONE ═══ */}
         {!hasPhoto && !editorOpen && (

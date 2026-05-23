@@ -215,6 +215,40 @@ export function FotoUpload({ value, onChange, cropMeta, onCropChange }: FotoUplo
 }
 
 // ─── CropEditor: draggable image inside 16:10 viewport ───────────────────────
+//
+// Strategi: gambar diposisikan dengan translate(tx, ty) + scale(zoom).
+// tx/ty dalam satuan pixel relatif terhadap container.
+// Saat drag, kita langsung tambah dx/dy ke tx/ty → 1:1 smooth.
+// Saat simpan, kita konversi (tx, ty, zoom) → (fotoCropX%, fotoCropY%).
+//
+// Konversi tx/ty → %:
+//   Gambar setelah scale punya ukuran (W*zoom x H*zoom).
+//   Overflow = (W*zoom - W) / 2 = W*(zoom-1)/2  (per sisi)
+//   Range geser = W*(zoom-1)  (full range kiri ke kanan)
+//   fotoCropX% = 50 - (tx / (W*(zoom-1)/2)) * 50   jika zoom>1, else 50
+
+function cropFromTransform(tx: number, ty: number, zoom: number, W: number, H: number): { fotoCropX: number; fotoCropY: number } {
+  if (zoom <= 1) return { fotoCropX: 50, fotoCropY: 50 };
+  const maxTx = (W * (zoom - 1)) / 2;
+  const maxTy = (H * (zoom - 1)) / 2;
+  const fotoCropX = Math.round((50 - (tx / maxTx) * 50) * 10) / 10;
+  const fotoCropY = Math.round((50 - (ty / maxTy) * 50) * 10) / 10;
+  return {
+    fotoCropX: Math.max(0, Math.min(100, fotoCropX)),
+    fotoCropY: Math.max(0, Math.min(100, fotoCropY)),
+  };
+}
+
+function transformFromCrop(fotoCropX: number, fotoCropY: number, zoom: number, W: number, H: number): { tx: number; ty: number } {
+  if (zoom <= 1) return { tx: 0, ty: 0 };
+  const maxTx = (W * (zoom - 1)) / 2;
+  const maxTy = (H * (zoom - 1)) / 2;
+  return {
+    tx: ((50 - fotoCropX) / 50) * maxTx,
+    ty: ((50 - fotoCropY) / 50) * maxTy,
+  };
+}
+
 function CropEditor({
   src,
   crop,
@@ -225,41 +259,94 @@ function CropEditor({
   onCropChange: (c: CropMeta) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Internal translate state in pixels — derived from crop on mount/zoom change
+  const [tx, setTx] = useState(0);
+  const [ty, setTy] = useState(0);
+
   const dragging = useRef(false);
-  const startPos = useRef({ x: 0, y: 0, cropX: 0, cropY: 0 });
+  const dragStart = useRef({ px: 0, py: 0, tx: 0, ty: 0 });
+
+  // Helper: clamp translate so image never shows gap at edges
+  const clamp = useCallback((nextTx: number, nextTy: number, zoom: number): { tx: number; ty: number } => {
+    if (!containerRef.current) return { tx: nextTx, ty: nextTy };
+    const W = containerRef.current.clientWidth;
+    const H = containerRef.current.clientHeight;
+    const maxTx = (W * (zoom - 1)) / 2;
+    const maxTy = (H * (zoom - 1)) / 2;
+    return {
+      tx: Math.max(-maxTx, Math.min(maxTx, nextTx)),
+      ty: Math.max(-maxTy, Math.min(maxTy, nextTy)),
+    };
+  }, []);
+
+  // Sync translate when crop prop or zoom changes from outside (e.g. slider or initial open).
+  // Use ResizeObserver to ensure clientWidth is ready after first paint.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function sync() {
+      if (!el) return;
+      const W = el.clientWidth;
+      const H = el.clientHeight;
+      if (W === 0) return;
+      const { tx: newTx, ty: newTy } = transformFromCrop(crop.fotoCropX, crop.fotoCropY, crop.fotoCropZoom, W, H);
+      setTx(newTx);
+      setTy(newTy);
+    }
+
+    // Run once dimensions are known
+    sync();
+    if (el.clientWidth === 0) {
+      const ro = new ResizeObserver(() => { sync(); ro.disconnect(); });
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+  }, [crop.fotoCropX, crop.fotoCropY, crop.fotoCropZoom]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     dragging.current = true;
-    startPos.current = { x: e.clientX, y: e.clientY, cropX: crop.fotoCropX, cropY: crop.fotoCropY };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [crop.fotoCropX, crop.fotoCropY]);
+    dragStart.current = { px: e.clientX, py: e.clientY, tx, ty };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }, [tx, ty]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    // dx/dy in pixels -> convert to % of container
-    const dx = e.clientX - startPos.current.x;
-    const dy = e.clientY - startPos.current.y;
-    // Moving image left => focal point goes right, so invert
-    const pctX = (dx / rect.width) * 100;
-    const pctY = (dy / rect.height) * 100;
-    const newX = Math.max(0, Math.min(100, startPos.current.cropX - pctX));
-    const newY = Math.max(0, Math.min(100, startPos.current.cropY - pctY));
-    onCropChange({ ...crop, fotoCropX: Math.round(newX * 10) / 10, fotoCropY: Math.round(newY * 10) / 10 });
-  }, [crop, onCropChange]);
+    if (!dragging.current) return;
+    const dx = e.clientX - dragStart.current.px;
+    const dy = e.clientY - dragStart.current.py;
+    const nextTx = dragStart.current.tx + dx;
+    const nextTy = dragStart.current.ty + dy;
+    // Update visual immediately (no state batching delay)
+    const clamped = clamp(nextTx, nextTy, crop.fotoCropZoom);
+    setTx(clamped.tx);
+    setTy(clamped.ty);
+  }, [clamp, crop.fotoCropZoom]);
 
   const handlePointerUp = useCallback(() => {
+    if (!dragging.current) return;
     dragging.current = false;
-  }, []);
+    // Commit to parent only on release
+    if (!containerRef.current) return;
+    const W = containerRef.current.clientWidth;
+    const H = containerRef.current.clientHeight;
+    onCropChange({ ...crop, ...cropFromTransform(tx, ty, crop.fotoCropZoom, W, H) });
+  }, [crop, onCropChange, tx, ty]);
 
-  // Mouse wheel for zoom
+  // Mouse wheel zoom
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.05 : 0.05;
-    const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, crop.fotoCropZoom + delta));
-    onCropChange({ ...crop, fotoCropZoom: Math.round(newZoom * 100) / 100 });
-  }, [crop, onCropChange]);
+    const delta = e.deltaY > 0 ? -0.08 : 0.08;
+    const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round((crop.fotoCropZoom + delta) * 100) / 100));
+    if (!containerRef.current) return;
+    const W = containerRef.current.clientWidth;
+    const H = containerRef.current.clientHeight;
+    const clamped = clamp(tx, ty, newZoom);
+    setTx(clamped.tx);
+    setTy(clamped.ty);
+    onCropChange({ ...crop, fotoCropZoom: newZoom, ...cropFromTransform(clamped.tx, clamped.ty, newZoom, W, H) });
+  }, [clamp, crop, onCropChange, tx, ty]);
 
   return (
     <div
@@ -276,11 +363,12 @@ function CropEditor({
         src={src}
         alt="Crop preview"
         draggable={false}
-        className="w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         style={{
           objectFit: 'cover',
-          objectPosition: `${crop.fotoCropX}% ${crop.fotoCropY}%`,
-          transform: `scale(${crop.fotoCropZoom})`,
+          transform: `translate(${tx}px, ${ty}px) scale(${crop.fotoCropZoom})`,
+          // will-change untuk GPU compositing → smooth tanpa repaint
+          willChange: 'transform',
         }}
       />
 
@@ -291,15 +379,17 @@ function CropEditor({
         <div className="absolute top-1/3 left-0 right-0 h-px bg-white/20" />
         <div className="absolute top-2/3 left-0 right-0 h-px bg-white/20" />
 
-        {/* Crosshair at center */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4">
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/50 -translate-x-1/2" />
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-white/50 -translate-y-1/2" />
+        {/* Crosshair tetap di tengah viewport */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="relative w-5 h-5">
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60 -translate-x-1/2" />
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-white/60 -translate-y-1/2" />
+          </div>
         </div>
       </div>
 
       {/* Drag hint */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/50 text-[10px] text-white/70 pointer-events-none">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/50 text-[10px] text-white/70 pointer-events-none whitespace-nowrap">
         Drag untuk geser • Scroll untuk zoom
       </div>
     </div>

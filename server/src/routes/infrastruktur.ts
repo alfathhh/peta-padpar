@@ -86,7 +86,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
 // POST /api/infrastruktur
 router.post('/', authMiddleware, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { nama, kategori, alamat, fotoUrl, lat, lng, idkab, idkec, iddesa, idsls } = req.body;
+  const { nama, kategori, alamat, fotoUrl, fotoCropX, fotoCropY, fotoCropZoom, lat, lng, idkab, idkec, iddesa, idsls } = req.body;
 
   if (!nama || !kategori || lat === undefined || lng === undefined || !idkab || !idkec || !iddesa) {
     res.status(400).json({ error: 'Field nama, kategori, lat, lng, idkab, idkec, iddesa wajib diisi' });
@@ -100,7 +100,12 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response): Promis
 
   try {
     const infra = await prisma.infrastruktur.create({
-      data: { nama, kategori, alamat, fotoUrl, lat: latNum, lng: lngNum, idkab, idkec, iddesa, idsls: idsls || null },
+      data: {
+        nama, kategori, alamat, fotoUrl, lat: latNum, lng: lngNum, idkab, idkec, iddesa, idsls: idsls || null,
+        fotoCropX: fotoCropX != null ? parseFloat(fotoCropX) : 50,
+        fotoCropY: fotoCropY != null ? parseFloat(fotoCropY) : 50,
+        fotoCropZoom: fotoCropZoom != null ? parseFloat(fotoCropZoom) : 1,
+      },
     });
     res.status(201).json(infra);
   } catch (error: unknown) {
@@ -173,7 +178,7 @@ router.post('/import', authMiddleware, upload.single('file'), async (req: AuthRe
 // PUT /api/infrastruktur/:id
 router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response): Promise<void> => {
   const id = parseInt(req.params.id);
-  const { nama, kategori, alamat, fotoUrl, lat, lng, idkab, idkec, iddesa, idsls } = req.body;
+  const { nama, kategori, alamat, fotoUrl, fotoCropX, fotoCropY, fotoCropZoom, lat, lng, idkab, idkec, iddesa, idsls } = req.body;
 
   if (!nama || !kategori || lat === undefined || lng === undefined || !idkab || !idkec || !iddesa) {
     res.status(400).json({ error: 'Field nama, kategori, lat, lng, idkab, idkec, iddesa wajib diisi' }); return;
@@ -187,7 +192,12 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response): Prom
   try {
     const infra = await prisma.infrastruktur.update({
       where: { id },
-      data: { nama, kategori, alamat, fotoUrl, lat: latNum, lng: lngNum, idkab, idkec, iddesa, idsls: idsls || null },
+      data: {
+        nama, kategori, alamat, fotoUrl, lat: latNum, lng: lngNum, idkab, idkec, iddesa, idsls: idsls || null,
+        fotoCropX: fotoCropX != null ? parseFloat(fotoCropX) : 50,
+        fotoCropY: fotoCropY != null ? parseFloat(fotoCropY) : 50,
+        fotoCropZoom: fotoCropZoom != null ? parseFloat(fotoCropZoom) : 1,
+      },
     });
     res.json(infra);
   } catch (error: unknown) {

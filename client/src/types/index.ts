@@ -15,6 +15,9 @@ export interface Infrastruktur {
   kategori: string;
   alamat?: string;
   fotoUrl?: string;
+  fotoCropX?: number;
+  fotoCropY?: number;
+  fotoCropZoom?: number;
   lat: number;
   lng: number;
   idkab: string;
@@ -87,6 +90,9 @@ export interface InfrastrukturFormData {
   kategori: string;
   alamat: string;
   fotoUrl: string;
+  fotoCropX: number;
+  fotoCropY: number;
+  fotoCropZoom: number;
   lat: number | '';
   lng: number | '';
   idkab: string;

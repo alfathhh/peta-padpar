@@ -34,6 +34,7 @@ L.Icon.Default.mergeOptions({
 
 const EMPTY_FORM: InfrastrukturFormData = {
   nama: '', kategori: '', alamat: '', fotoUrl: '',
+  fotoCropX: 50, fotoCropY: 50, fotoCropZoom: 1,
   lat: '', lng: '',
   idkab: IDKAB_PADANG_PARIAMAN, idkec: '', iddesa: '', idsls: '',
 };
@@ -160,7 +161,7 @@ export default function AdminInfrastruktur() {
 
   const openAdd = () => { setForm(EMPTY_FORM); setEditId(null); setFormError(''); setShowForm(true); };
   const openEdit = (item: Infrastruktur) => {
-    setForm({ nama: item.nama, kategori: item.kategori, alamat: item.alamat ?? '', fotoUrl: item.fotoUrl ?? '', lat: item.lat, lng: item.lng, idkab: item.idkab, idkec: item.idkec, iddesa: item.iddesa, idsls: item.idsls ?? '' });
+    setForm({ nama: item.nama, kategori: item.kategori, alamat: item.alamat ?? '', fotoUrl: item.fotoUrl ?? '', fotoCropX: item.fotoCropX ?? 50, fotoCropY: item.fotoCropY ?? 50, fotoCropZoom: item.fotoCropZoom ?? 1, lat: item.lat, lng: item.lng, idkab: item.idkab, idkec: item.idkec, iddesa: item.iddesa, idsls: item.idsls ?? '' });
     setEditId(item.id); setFormError(''); setShowForm(true);
   };
 
@@ -374,7 +375,7 @@ export default function AdminInfrastruktur() {
               <Input label="Alamat" value={form.alamat} onChange={(e) => setForm(f => ({ ...f, alamat: e.target.value }))} placeholder="Alamat lengkap" />
             </div>
 
-            <FotoUpload value={form.fotoUrl} onChange={(url) => setForm(f => ({ ...f, fotoUrl: url }))} />
+            <FotoUpload value={form.fotoUrl} onChange={(url) => setForm(f => ({ ...f, fotoUrl: url }))} cropMeta={{ fotoCropX: form.fotoCropX, fotoCropY: form.fotoCropY, fotoCropZoom: form.fotoCropZoom }} onCropChange={(meta) => setForm(f => ({ ...f, ...meta }))} />
 
             <div className="space-y-3">
               <label className="block text-sm font-medium text-neutral-700">Koordinat *</label>

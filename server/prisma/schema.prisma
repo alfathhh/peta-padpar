@@ -35,19 +35,22 @@ model KategoriInfra {
 // Tabel data titik infrastruktur dengan koordinat dan kode wilayah hierarkis
 // Menggunakan kode BPS penuh: idkab(4) / idkec(7) / iddesa(10) / idsls(14)
 model Infrastruktur {
-  id        Int      @id @default(autoincrement())
-  nama      String   @db.VarChar(255)
-  kategori  String   @db.VarChar(50)
-  alamat    String?  @db.Text
-  fotoUrl   String?  @db.Text
-  lat       Float
-  lng       Float
-  idkab     String   @db.Char(4)
-  idkec     String   @db.Char(7)
-  iddesa    String   @db.Char(10)
-  idsls     String?  @db.Char(14)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  nama         String   @db.VarChar(255)
+  kategori     String   @db.VarChar(50)
+  alamat       String?  @db.Text
+  fotoUrl      String?  @db.Text
+  fotoCropX    Float?   @default(50)
+  fotoCropY    Float?   @default(50)
+  fotoCropZoom Float?   @default(1)
+  lat          Float
+  lng          Float
+  idkab        String   @db.Char(4)
+  idkec        String   @db.Char(7)
+  iddesa       String   @db.Char(10)
+  idsls        String?  @db.Char(14)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   kategoriRef KategoriInfra @relation(fields: [kategori], references: [value])
 

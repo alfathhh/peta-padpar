@@ -1,283 +1,215 @@
-# 🗺️ Peta Tematik Interaktif Kabupaten Padang Pariaman
+# Peta Tematik Interaktif — Kabupaten Padang Pariaman
 
-Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik wilayah Kabupaten Padang Pariaman, Sumatera Barat.
+Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik wilayah Kabupaten Padang Pariaman, Sumatera Barat, Indonesia.
 
----
-
-## ✨ Fitur Utama
+## Fitur
 
 ### Halaman Publik (`/`)
-- 🗺️ **Peta Interaktif** — Leaflet.js dengan toggle basemap 3 pilihan:
-  - 🗺️ **Peta** (OpenStreetMap)
-  - 🛰️ **Satelit** (Google Satellite)
-  - 🛣️ **Jalan** (Google Road)
-- 🏷️ **Filter Kategori** — Aktifkan/nonaktifkan marker per kategori infrastruktur
-- 📍 **Filter Wilayah Cascade** — Kabupaten → Kecamatan → Nagari → Korong dengan breadcrumb
-- 🔍 **Search** — Pencarian infrastruktur dengan debounce 300ms + flyTo peta
-- 📊 **Panel Statistik** — Card, Bar Chart, Donut Chart — update real-time sesuai filter wilayah
-- 🗺️ **Visualisasi Wilayah** — Shape GeoJSON dengan hover tooltip nama wilayah, klik untuk drill-down level
 
-### Panel Admin (`/admin`) — URL tersembunyi, tidak ada link dari halaman publik
-- 🔐 **Login** aman dengan JWT (7 hari)
-- 🏗️ **Kelola Infrastruktur** — CRUD + MapPicker koordinat + **Upload Foto** + Import/Export Excel
-- 📸 **Upload Foto** — Drag & drop atau klik pilih gambar (JPG/PNG/WebP, maks 5MB), preview langsung
-- 📈 **Kelola Statistik** — CRUD + Import/Export Excel
-- 🏷️ **Kelola Kategori** — CRUD dengan color picker + emoji icon + proteksi hapus jika masih dipakai
+- **Peta Interaktif** — Leaflet.js dengan toggle basemap (OSM, Google Satellite, Google Road)
+- **Filter Kategori** — Aktifkan/nonaktifkan marker per kategori infrastruktur
+- **Filter Wilayah** — Cascading: Kecamatan → Nagari → Korong
+- **Pencarian** — Debounce 300ms, klik hasil untuk fly-to lokasi di peta
+- **Panel Statistik** — Donut chart, bar chart, dan ringkasan angka per wilayah
+- **Visualisasi Batas Wilayah** — Shape GeoJSON dengan hover tooltip
+
+### Panel Admin (`/admin`)
+
+- **Autentikasi** — JWT (7 hari), URL tidak ditautkan dari halaman publik
+- **Kelola Infrastruktur** — CRUD, MapPicker, upload foto (drag & drop), import/export Excel
+- **Kelola Statistik** — CRUD + import/export Excel
+- **Kelola Kategori** — CRUD dengan icon picker, color picker, proteksi hapus
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Teknologi |
 |-------|-----------|
 | Frontend | React 18, Vite, TypeScript |
-| CSS | **Tailwind CSS** (utility-first) |
-| Peta | Leaflet.js via react-leaflet |
+| Styling | Tailwind CSS |
+| Peta | Leaflet.js (react-leaflet) |
 | State | Zustand |
 | Charts | Recharts |
 | HTTP | Axios |
 | Backend | Node.js, Express, TypeScript |
 | Database | PostgreSQL + Prisma ORM |
 | Auth | JWT + bcrypt |
-| Excel | exceljs + multer |
-| Upload Foto | multer (simpan ke `server/uploads/images/`) |
+| File Handling | multer (upload), exceljs (Excel) |
 
 ---
 
-## 🚀 Cara Menjalankan
+## Cara Menjalankan
 
 ### Prasyarat
+
 - Node.js 20+
 - PostgreSQL 15+
 - npm
 
-### 1. Clone & Masuk ke Folder
-
-```bash
-git clone https://github.com/alfathhh/tematik1306.git
-cd tematik1306/padang-pariaman-map
-```
-
-### 2. Setup Backend
+### Backend
 
 ```bash
 cd server
 npm install
-
-# Salin .env dan isi konfigurasi
 cp .env.example .env
-# Edit .env: isi DATABASE_URL dan JWT_SECRET
 ```
 
-Contoh isi `.env`:
+Isi `.env`:
+
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/padang_pariaman_map"
-JWT_SECRET="string_acak_panjang_minimal_32_karakter"
+JWT_SECRET="string_acak_minimal_32_karakter"
 JWT_EXPIRES_IN="7d"
 PORT=3000
 CORS_ORIGIN="http://localhost:5173"
 ```
 
 ```bash
-# Generate Prisma client
 npx prisma generate
-
-# Buat tabel database
 npx prisma migrate dev --name init
-
-# Isi data awal (admin + 6 kategori + contoh data)
 npm run prisma:seed
-
-# Jalankan server (port 3000)
 npm run dev
 ```
 
-### 3. Setup Frontend
+### Frontend
 
 ```bash
-cd ../client
+cd client
 npm install
-
-# Jalankan frontend (port 5173)
 npm run dev
 ```
 
-### 4. Akses Aplikasi
+### Akses
 
 | URL | Keterangan |
 |-----|-----------|
-| `http://localhost:5173` | Halaman peta publik |
-| `http://localhost:5173/admin/login` | Login panel admin |
+| `http://localhost:5173` | Peta publik |
+| `http://localhost:5173/admin/login` | Login admin |
 
-**Kredensial default:**
-| Field | Nilai |
-|-------|-------|
-| Username | `admin` |
-| Password | `admin123` |
+**Kredensial default:** `admin` / `admin123`
 
-> ⚠️ **Penting:** Ganti password default segera setelah login pertama di environment production!
+> Ganti password default di environment non-development.
 
 ---
 
-## 📸 Fitur Upload Foto
-
-Foto infrastruktur dapat diunggah langsung dari form admin:
-
-1. Buka form **Tambah / Edit Infrastruktur**
-2. Di bagian **Foto** — **drag & drop** gambar atau klik untuk memilih file
-3. Format yang didukung: JPG, JPEG, PNG, WebP — maks **5MB**
-4. Preview muncul otomatis. Hover untuk tombol **🔄 Ganti** atau **🗑️ Hapus**
-5. Atau klik **"Atau isi URL manual"** untuk memasukkan link gambar dari internet
-
-Foto tersimpan di: `server/uploads/images/`
-URL akses foto: `http://localhost:3000/uploads/images/<nama-file>`
-
-> Kolom `foto_url` di template import Excel **bisa dikosongkan** — foto bisa diupload lewat admin panel setelah data diimport.
-
----
-
-## 📁 Struktur Folder
+## Struktur Folder
 
 ```
-padang-pariaman-map/
-├── client/                        # Frontend React + Vite + Tailwind
-│   ├── src/
-│   │   ├── assets/geojson/        # File GeoJSON batas wilayah (statis)
-│   │   │   ├── kabupaten.geojson
-│   │   │   ├── kecamatan.geojson       
-│   │   │   ├── nagari.geojson
-│   │   │   └── korong.geojson
-│   │   ├── components/
-│   │   │   ├── map/               # Komponen peta Leaflet
-│   │   │   ├── filter/            # Filter kategori & wilayah
-│   │   │   ├── search/            # SearchBar dengan debounce
-│   │   │   ├── statistik/         # Panel statistik & charts
-│   │   │   ├── ui/                # Primitif UI (Button, Input, Modal, dll)
-│   │   │   └── admin/             # FotoUpload, MapPicker, dll.
-│   │   ├── pages/
-│   │   │   ├── ClientMap.tsx      # Halaman peta publik
-│   │   │   └── admin/             # Login, Dashboard, Infrastruktur, Statistik, Kategori
-│   │   ├── store/                 # Zustand stores (map, filter, auth)
-│   │   ├── hooks/                 # Custom hooks (debounce, wilayah, infrastruktur, dll.)
-│   │   ├── lib/                   # Axios instance, map utils, cn utility
-│   │   └── types/                 # TypeScript interfaces
+├── client/                     # Frontend (React + Vite + Tailwind)
+│   └── src/
+│       ├── assets/geojson/     # GeoJSON batas wilayah
+│       ├── components/
+│       │   ├── admin/          # FotoUpload, CategoryBadge
+│       │   ├── filter/         # FilterKategori, FilterWilayah
+│       │   ├── layout/         # PublicHeader
+│       │   ├── map/            # MapContainer, MarkerLayer, WilayahLayer
+│       │   ├── search/         # SearchBar
+│       │   ├── statistik/      # StatistikPanel, DonutChart, BarChart
+│       │   └── ui/             # Button, Input, Modal, Card, Badge, Select, Skeleton
+│       ├── hooks/              # useInfrastruktur, useStatistik, useDebounce, dll
+│       ├── lib/                # Axios instance, cn utility, category icons
+│       ├── pages/              # ClientMap, admin/ (Login, Dashboard, dll)
+│       ├── store/              # Zustand (authStore, filterStore, mapStore)
+│       └── types/              # TypeScript interfaces
 │
-└── server/                        # Backend Express + TypeScript
-    ├── uploads/
-    │   └── images/                # Foto yang diupload admin (dibuat otomatis)
+└── server/                     # Backend (Express + TypeScript)
+    ├── uploads/images/         # Foto yang diupload (dibuat otomatis)
     └── src/
-        ├── routes/                # API routes (auth, infrastruktur, kategori, statistik, wilayah, upload)
-        ├── middleware/            # JWT auth middleware
-        ├── prisma/                # Schema & seed
-        └── utils/                 # Excel & upload (multer) utils
+        ├── routes/             # API routes
+        ├── middleware/         # JWT auth
+        ├── prisma/             # Schema + seed
+        └── utils/              # Excel & upload helpers
 ```
 
 ---
 
-## 🗂️ API Endpoints
+## API
 
-### Publik (tanpa auth)
+### Publik (tanpa autentikasi)
+
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
-| POST | `/api/auth/login` | Login admin, dapat JWT |
-| GET | `/api/kategori` | Daftar kategori infrastruktur |
-| GET | `/api/infrastruktur` | Daftar infrastruktur (dengan filter) |
-| GET | `/api/statistik` | Data statistik wilayah |
+| POST | `/api/auth/login` | Login, return JWT |
+| GET | `/api/kategori` | Daftar kategori |
+| GET | `/api/infrastruktur` | List infrastruktur (filter: kategori, wilayah, search, page) |
+| GET | `/api/statistik` | Data statistik (filter: wilayah, tahun, indikator) |
 | GET | `/api/wilayah/kecamatan` | Daftar kecamatan |
-| GET | `/api/wilayah/nagari` | Daftar nagari |
-| GET | `/api/wilayah/korong` | Daftar korong |
+| GET | `/api/wilayah/nagari?kdkec=` | Daftar nagari |
+| GET | `/api/wilayah/korong?kddesa=` | Daftar korong |
 
-### Protected (butuh JWT)
+### Protected (Bearer token)
+
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | POST/PUT/DELETE | `/api/kategori/:id` | CRUD kategori |
 | POST/PUT/DELETE | `/api/infrastruktur/:id` | CRUD infrastruktur |
-| POST | `/api/infrastruktur/import` | Import dari Excel |
-| GET | `/api/infrastruktur/export` | Export ke Excel |
+| POST | `/api/infrastruktur/import` | Import Excel (maks 5.000 baris) |
+| GET | `/api/infrastruktur/export` | Export Excel |
 | POST/PUT/DELETE | `/api/statistik/:id` | CRUD statistik |
-| POST | `/api/statistik/import` | Import statistik dari Excel |
-| GET | `/api/statistik/export` | Export statistik ke Excel |
-| **POST** | **`/api/upload/foto`** | **Upload foto (JPG/PNG/WebP, maks 5MB)** |
-| DELETE | `/api/upload/foto/:filename` | Hapus foto dari server |
+| POST | `/api/statistik/import` | Import Excel |
+| GET | `/api/statistik/export` | Export Excel |
+| POST | `/api/upload/foto` | Upload foto (JPG/PNG/WebP, maks 5MB) |
+| DELETE | `/api/upload/foto/:filename` | Hapus foto |
 
 ---
 
-## 🗺️ Kode Wilayah
+## Kode Wilayah
 
-Sistem hierarki kode wilayah Kabupaten Padang Pariaman:
+Hierarki kode wilayah Kabupaten Padang Pariaman:
 
-| Level | Field | Panjang | Contoh | Catatan |
-|-------|-------|---------|--------|---------|
-| Kabupaten | `idkab` | 4 digit | `1306` | Selalu tetap |
-| Kecamatan | `idkec` | 6 digit | `130601` | Dimulai dengan `1306` |
-| Nagari | `iddesa` | 10 digit | `1306010001` | Dimulai dengan `idkec` |
-| Korong | `idsls` | 12 digit | `130601000101` | Dimulai dengan `iddesa` |
+| Level | Field | Digit | Contoh |
+|-------|-------|-------|--------|
+| Kabupaten | `idkab` | 4 | `1305` |
+| Kecamatan | `idkec` | 6 | `130501` |
+| Nagari | `iddesa` | 10 | `1305010001` |
+| Korong | `idsls` | 12 | `130501000101` |
 
 ---
 
-## 📊 Template Import Excel
+## Template Import Excel
 
-### Infrastruktur (kolom wajib & opsional)
+### Infrastruktur
 
-| Kolom | Header | Wajib | Keterangan |
-|-------|--------|-------|------------|
-| A | `nama` | ✅ | Nama infrastruktur |
-| B | `kategori` | ✅ | Value kategori (contoh: `restoran`) |
-| C | `alamat` | ❌ | Alamat lengkap |
-| D | `foto_url` | ❌ | URL foto eksternal — **kosongkan jika foto akan diupload via admin** |
-| E | `lat` | ✅ | Latitude (contoh: `-0.5397`) |
-| F | `lng` | ✅ | Longitude (contoh: `100.1187`) |
-| G | `idkab` | ✅ | Harus `1306` |
-| H | `idkec` | ✅ | 6 digit, dimulai `1306` |
-| I | `iddesa` | ✅ | 10 digit |
-| J | `idsls` | ❌ | 12 digit (korong, opsional) |
+| Kolom | Header | Wajib | Catatan |
+|-------|--------|-------|---------|
+| A | `nama` | Ya | Nama infrastruktur |
+| B | `kategori` | Ya | Slug kategori (cth: `restoran`) |
+| C | `alamat` | Tidak | Alamat lengkap |
+| D | `foto_url` | Tidak | URL atau kosongkan (upload via admin nanti) |
+| E | `lat` | Ya | Latitude |
+| F | `lng` | Ya | Longitude |
+| G | `idkab` | Ya | Harus `1305` |
+| H | `idkec` | Ya | 6 digit |
+| I | `iddesa` | Ya | 10 digit |
+| J | `idsls` | Tidak | 12 digit |
 
 ### Statistik
 
-| Kolom | Header | Wajib | Keterangan |
-|-------|--------|-------|------------|
-| A | `idkab` | ✅ | Kode kabupaten |
-| B | `idkec` | ❌ | Kode kecamatan |
-| C | `iddesa` | ❌ | Kode nagari |
-| D | `idsls` | ❌ | Kode korong |
-| E | `indikator` | ✅ | Nama indikator (contoh: `Jumlah Penduduk`) |
-| F | `nilai` | ✅ | Angka |
-| G | `satuan` | ❌ | Satuan (contoh: `jiwa`) |
-| H | `tahun` | ✅ | Tahun data (contoh: `2024`) |
+| Kolom | Header | Wajib | Catatan |
+|-------|--------|-------|---------|
+| A | `idkab` | Ya | Kode kabupaten |
+| B | `idkec` | Tidak | Kode kecamatan |
+| C | `iddesa` | Tidak | Kode nagari |
+| D | `idsls` | Tidak | Kode korong |
+| E | `indikator` | Ya | Nama indikator |
+| F | `nilai` | Ya | Angka |
+| G | `satuan` | Tidak | Satuan (cth: `jiwa`) |
+| H | `tahun` | Ya | Tahun data |
 
 ---
 
-## 🔒 Catatan Keamanan
+## Keamanan
 
-- URL `/admin` **tidak diekspos** di navbar, footer, atau link manapun di halaman publik
-- Password admin di-hash dengan **bcrypt (cost factor 10)**
-- File `.env` **tidak di-commit** ke Git (ada di `.gitignore`)
-- Upload foto hanya menerima file gambar (JPG/PNG/WebP), maks 5MB
-- Import Excel dibatasi maks **5.000 baris** per file
-
----
-
-## 🎨 Fitur Peta
-
-### Basemap Toggle
-Klik tombol glass di kanan-bawah peta untuk cycle 3 basemap:
-1. **🗺️ Peta** — OpenStreetMap (default)
-2. **🛰️ Satelit** — Google Satellite
-3. **🛣️ Jalan** — Google Road
-
-### Visualisasi Wilayah
-- Setiap level (kecamatan, nagari, korong) ditampilkan sebagai shape GeoJSON dengan warna berbeda
-- Hover pada shape menampilkan tooltip nama wilayah
-- Klik shape untuk drill-down ke level berikutnya
-- Peta otomatis zoom ke wilayah yang dipilih
-
-### Optimasi Performa
-- Pre-indexing GeoJSON features untuk lookup O(1) saat filter
-- Bounds caching untuk menghindari parsing geometri berulang
-- Clustering marker otomatis jika jumlah > 100
+- Admin URL tidak ditautkan dari halaman publik
+- Password di-hash dengan bcrypt (cost factor 10)
+- `.env` di-exclude dari Git
+- Upload hanya menerima gambar (JPG/PNG/WebP), maks 5MB
+- Import Excel dibatasi 5.000 baris per file
+- JWT otomatis expired setelah 7 hari
 
 ---
 
-## 📝 Lisensi
+## Lisensi
 
-MIT License — Dikembangkan untuk Kabupaten Padang Pariaman, Sumatera Barat
+MIT — Dikembangkan untuk Kabupaten Padang Pariaman, Sumatera Barat.

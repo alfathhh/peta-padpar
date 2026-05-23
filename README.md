@@ -6,19 +6,19 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 
 ### Halaman Publik (`/`)
 
-- **Peta Interaktif** — Leaflet.js dengan toggle basemap (OSM, Google Satellite, Google Road)
-- **Filter Kategori** — Aktifkan/nonaktifkan marker per kategori infrastruktur
-- **Filter Wilayah** — Cascading: Kecamatan → Nagari → Korong
-- **Pencarian** — Debounce 300ms, klik hasil untuk fly-to lokasi di peta
-- **Panel Statistik** — Donut chart, bar chart, dan ringkasan angka per wilayah
-- **Visualisasi Batas Wilayah** — Shape GeoJSON dengan hover tooltip
+- Peta interaktif (Leaflet.js) dengan basemap OSM / Google Satellite / Google Road
+- Filter kategori infrastruktur (toggle per jenis)
+- Filter wilayah cascading: Kecamatan → Nagari → Korong
+- Pencarian infrastruktur & wilayah (debounce 300ms, fly-to lokasi)
+- Panel statistik (donut chart, bar chart, ringkasan angka)
+- Visualisasi batas wilayah GeoJSON dengan tooltip
 
 ### Panel Admin (`/admin`)
 
-- **Autentikasi** — JWT (7 hari), URL tidak ditautkan dari halaman publik
-- **Kelola Infrastruktur** — CRUD, MapPicker, upload foto (drag & drop), import/export Excel
-- **Kelola Statistik** — CRUD + import/export Excel
-- **Kelola Kategori** — CRUD dengan icon picker, color picker, proteksi hapus
+- Login JWT (7 hari), URL tersembunyi dari publik
+- CRUD infrastruktur + MapPicker + upload foto + import/export Excel
+- CRUD statistik + import/export Excel
+- CRUD kategori + icon picker + color picker
 
 ---
 
@@ -26,8 +26,7 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 
 | Layer | Teknologi |
 |-------|-----------|
-| Frontend | React 18, Vite, TypeScript |
-| Styling | Tailwind CSS |
+| Frontend | React 18, Vite, TypeScript, Tailwind CSS |
 | Peta | Leaflet.js (react-leaflet) |
 | State | Zustand |
 | Charts | Recharts |
@@ -35,7 +34,7 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 | Backend | Node.js, Express, TypeScript |
 | Database | PostgreSQL + Prisma ORM |
 | Auth | JWT + bcrypt |
-| File Handling | multer (upload), exceljs (Excel) |
+| File | multer (upload foto), exceljs (Excel) |
 
 ---
 
@@ -47,7 +46,7 @@ Aplikasi web peta interaktif untuk visualisasi data infrastruktur dan statistik 
 - PostgreSQL 15+
 - npm
 
-### Backend
+### 1. Backend
 
 ```bash
 cd server
@@ -55,13 +54,13 @@ npm install
 cp .env.example .env
 ```
 
-Isi `.env`:
+Edit `server/.env`:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/padang_pariaman_map"
+DATABASE_URL="postgresql://postgres:PASSWORD@localhost:5432/padang_pariaman_map"
 JWT_SECRET="string_acak_minimal_32_karakter"
 JWT_EXPIRES_IN="7d"
-PORT=3000
+PORT=3001
 CORS_ORIGIN="http://localhost:5173"
 ```
 
@@ -69,23 +68,24 @@ CORS_ORIGIN="http://localhost:5173"
 npx prisma generate
 npx prisma migrate dev --name init
 npm run prisma:seed
-```
-
-**Setup GeoJSON** — file tidak di-commit ke repo, salin manual:
-
-```bash
-# Dari root repo
-cp client/src/assets/geojson/*.geojson server/data/geojson/
-```
-
-> File GeoJSON hanya tersimpan di `server/data/geojson/` dan di-serve via `GET /api/geojson/:layer`.
-> Tidak pernah dikirim sebagai bundle ke browser.
-
-```bash
 npm run dev
 ```
 
-### Frontend
+### 2. Setup GeoJSON
+
+File GeoJSON **tidak di-commit ke repo** (ada di `.gitignore`). Taruh manual di `server/data/geojson/`:
+
+```bash
+server/data/geojson/
+├── kabupaten.geojson
+├── kecamatan.geojson
+├── nagari.geojson
+└── korong.geojson
+```
+
+> Lihat bagian [Mengganti File GeoJSON](#mengganti-file-geojson) di bawah untuk detail format.
+
+### 3. Frontend
 
 ```bash
 cd client
@@ -93,90 +93,99 @@ npm install
 npm run dev
 ```
 
-### Akses
+### 4. Akses
 
 | URL | Keterangan |
 |-----|-----------|
-| `http://localhost:5173` | Peta publik |
-| `http://localhost:5173/admin/login` | Login admin |
+| http://localhost:5173 | Peta publik |
+| http://localhost:5173/admin/login | Login admin |
 
-**Kredensial default:** `admin` / `admin123`
-
-> Ganti password default di environment non-development.
+**Default login:** `admin` / `admin123`
 
 ---
 
-## Struktur Folder
+## Mengganti File GeoJSON
 
-```
-├── client/                     # Frontend (React + Vite + Tailwind)
-│   └── src/
-│       ├── assets/geojson/     # GeoJSON batas wilayah
-│       ├── components/
-│       │   ├── admin/          # FotoUpload, CategoryBadge
-│       │   ├── filter/         # FilterKategori, FilterWilayah
-│       │   ├── layout/         # PublicHeader
-│       │   ├── map/            # MapContainer, MarkerLayer, WilayahLayer
-│       │   ├── search/         # SearchBar
-│       │   ├── statistik/      # StatistikPanel, DonutChart, BarChart
-│       │   └── ui/             # Button, Input, Modal, Card, Badge, Select, Skeleton
-│       ├── hooks/              # useInfrastruktur, useStatistik, useDebounce, dll
-│       ├── lib/                # Axios instance, cn utility, category icons
-│       ├── pages/              # ClientMap, admin/ (Login, Dashboard, dll)
-│       ├── store/              # Zustand (authStore, filterStore, mapStore)
-│       └── types/              # TypeScript interfaces
-│
-└── server/                     # Backend (Express + TypeScript)
-    ├── uploads/images/         # Foto yang diupload (dibuat otomatis)
-    └── src/
-        ├── routes/             # API routes
-        ├── middleware/         # JWT auth
-        ├── prisma/             # Schema + seed
-        └── utils/              # Excel & upload helpers
+File GeoJSON disimpan di `server/data/geojson/` dan di-serve melalui endpoint `GET /api/geojson/:layer`. Hanya 4 layer yang diizinkan: `kabupaten`, `kecamatan`, `nagari`, `korong`.
+
+### Cara ganti:
+
+1. Siapkan file `.geojson` baru (format `FeatureCollection`)
+2. Taruh di `server/data/geojson/`, **timpa file lama**:
+   ```bash
+   cp kecamatan_baru.geojson server/data/geojson/kecamatan.geojson
+   ```
+3. Restart server (atau tunggu 1 jam — browser cache `max-age=3600`)
+4. Hard refresh browser (`Ctrl+Shift+R`) untuk clear cache
+
+### Format properties yang diperlukan di tiap file:
+
+**kecamatan.geojson** — setiap Feature harus punya:
+```json
+{ "idkec": "130601", "nmkec": "Batang Anai" }
 ```
 
----
+**nagari.geojson** — setiap Feature harus punya:
+```json
+{ "idkec": "130601", "iddesa": "1306010001", "nmdesa": "Sungai Asam" }
+```
 
-## API
+**korong.geojson** — setiap Feature harus punya:
+```json
+{ "idkec": "130601", "iddesa": "1306010001", "idsls": "130601000101", "nmsls": "Korong Gadang" }
+```
 
-### Publik (tanpa autentikasi)
+**kabupaten.geojson** — setiap Feature harus punya:
+```json
+{ "idkab": "1306" }
+```
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| POST | `/api/auth/login` | Login, return JWT |
-| GET | `/api/kategori` | Daftar kategori |
-| GET | `/api/infrastruktur` | List infrastruktur (filter: kategori, kdkec, kddesa, search, page) |
-| GET | `/api/statistik` | Data statistik (filter: kdkec, kddesa, tahun, indikator) |
-| GET | `/api/wilayah/kecamatan?kdkab=` | Daftar kecamatan |
-| GET | `/api/wilayah/nagari?kdkec=` | Daftar nagari berdasarkan `kdkec` |
-| GET | `/api/wilayah/korong?kddesa=` | Daftar korong berdasarkan `kddesa` |
+### Keamanan GeoJSON
 
-### Protected (Bearer token)
-
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| POST/PUT/DELETE | `/api/kategori/:id` | CRUD kategori |
-| POST/PUT/DELETE | `/api/infrastruktur/:id` | CRUD infrastruktur |
-| POST | `/api/infrastruktur/import` | Import Excel (maks 5.000 baris) |
-| GET | `/api/infrastruktur/export` | Export Excel |
-| POST/PUT/DELETE | `/api/statistik/:id` | CRUD statistik |
-| POST | `/api/statistik/import` | Import Excel |
-| GET | `/api/statistik/export` | Export Excel |
-| POST | `/api/upload/foto` | Upload foto (JPG/PNG/WebP, maks 5MB) |
-| DELETE | `/api/upload/foto/:filename` | Hapus foto |
+- File hanya di-serve ke origin yang terdaftar di `CORS_ORIGIN` (`.env`)
+- Tidak ada di JS bundle browser — orang tidak bisa langsung download dari DevTools
+- File tidak di-commit ke Git
 
 ---
 
 ## Kode Wilayah (BPS)
 
-Hierarki kode wilayah BPS Kabupaten Padang Pariaman:
+| Level | Field DB | Digit | Contoh |
+|-------|----------|-------|--------|
+| Kabupaten | `idkab` | 4 | `1306` |
+| Kecamatan | `idkec` | 6 | `130601` |
+| Nagari | `iddesa` | 10 | `1306010001` |
+| Korong | `idsls` | 12 | `130601000101` |
 
-| Level | Field | Digit | Contoh |
-|-------|-------|-------|--------|
-| Kabupaten | `kdkab` | 4 | `1306` |
-| Kecamatan | `kdkec` | 6 | `130601` |
-| Nagari | `kddesa` | 10 | `1306010001` |
-| Korong | `kdsls` | 12 | `130601000101` |
+Urutan cascading: `idkec` → `iddesa` → `idsls`
+
+---
+
+## API
+
+### Publik
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/auth/login` | Login admin |
+| GET | `/api/kategori` | Daftar kategori |
+| GET | `/api/infrastruktur` | List + filter (kategori, idkec, iddesa, search, page) |
+| GET | `/api/statistik` | Data statistik + filter |
+| GET | `/api/wilayah/kecamatan?idkab=` | Daftar kecamatan |
+| GET | `/api/wilayah/nagari?idkec=` | Daftar nagari |
+| GET | `/api/wilayah/korong?iddesa=` | Daftar korong |
+| GET | `/api/geojson/:layer` | GeoJSON (kabupaten/kecamatan/nagari/korong) |
+
+### Protected (Bearer token)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST/PUT/DELETE | `/api/infrastruktur/:id` | CRUD infrastruktur |
+| POST | `/api/infrastruktur/import` | Import Excel (maks 5.000 baris) |
+| GET | `/api/infrastruktur/export` | Export Excel |
+| POST/PUT/DELETE | `/api/statistik/:id` | CRUD statistik |
+| POST/PUT/DELETE | `/api/kategori/:id` | CRUD kategori |
+| POST | `/api/upload/foto` | Upload foto (maks 5MB) |
 
 ---
 
@@ -186,40 +195,41 @@ Hierarki kode wilayah BPS Kabupaten Padang Pariaman:
 
 | Kolom | Header | Wajib | Catatan |
 |-------|--------|-------|---------|
-| A | `nama` | Ya | Nama infrastruktur |
-| B | `kategori` | Ya | Slug kategori (cth: `restoran`) |
-| C | `alamat` | Tidak | Alamat lengkap |
-| D | `foto_url` | Tidak | URL atau kosongkan (upload via admin nanti) |
+| A | `nama` | Ya | |
+| B | `kategori` | Ya | Slug (cth: `restoran`) |
+| C | `alamat` | Tidak | |
+| D | `foto_url` | Tidak | URL atau kosong |
 | E | `lat` | Ya | Latitude |
 | F | `lng` | Ya | Longitude |
-| G | `kdkab` | Ya | Harus `1306` |
-| H | `kdkec` | Ya | 6 digit, dimulai `1306` |
-| I | `kddesa` | Ya | 10 digit, dimulai dengan `kdkec` |
-| J | `kdsls` | Tidak | 12 digit, dimulai dengan `kddesa` |
+| G | `idkab` | Ya | `1306` |
+| H | `idkec` | Ya | 6 digit |
+| I | `iddesa` | Ya | 10 digit |
+| J | `idsls` | Tidak | 12 digit |
 
 ### Statistik
 
 | Kolom | Header | Wajib | Catatan |
 |-------|--------|-------|---------|
-| A | `kdkab` | Ya | Kode kabupaten (`1306`) |
-| B | `kdkec` | Tidak | Kode kecamatan |
-| C | `kddesa` | Tidak | Kode nagari |
-| D | `kdsls` | Tidak | Kode korong |
+| A | `idkab` | Ya | `1306` |
+| B | `idkec` | Tidak | 6 digit |
+| C | `iddesa` | Tidak | 10 digit |
+| D | `idsls` | Tidak | 12 digit |
 | E | `indikator` | Ya | Nama indikator |
 | F | `nilai` | Ya | Angka |
-| G | `satuan` | Tidak | Satuan (cth: `jiwa`) |
-| H | `tahun` | Ya | Tahun data |
+| G | `satuan` | Tidak | cth: `jiwa` |
+| H | `tahun` | Ya | |
 
 ---
 
 ## Keamanan
 
-- Admin URL tidak ditautkan dari halaman publik
-- Password di-hash dengan bcrypt (cost factor 10)
-- `.env` di-exclude dari Git
-- Upload hanya menerima gambar (JPG/PNG/WebP), maks 5MB
-- Import Excel dibatasi 5.000 baris per file
-- JWT otomatis expired setelah 7 hari
+- URL `/admin` tidak ditautkan dari halaman publik
+- Password bcrypt (cost 10)
+- `.env` tidak di-commit
+- Upload hanya JPG/PNG/WebP, maks 5MB
+- Import Excel maks 5.000 baris
+- JWT expired 7 hari
+- GeoJSON hanya ter-serve via CORS-protected endpoint
 
 ---
 

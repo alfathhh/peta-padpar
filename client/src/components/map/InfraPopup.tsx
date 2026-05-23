@@ -17,12 +17,17 @@ export default function InfraPopup({ infra, kategori, onClose }: Props) {
 
   return (
     <article className="w-[300px] overflow-hidden bg-white font-sans">
-      <div className="relative">
+      <div className="relative overflow-hidden">
         {fotoUrl ? (
           <img
             src={fotoUrl}
             alt={infra.nama}
-            className="aspect-[16/10] w-full bg-neutral-100 object-cover"
+            className="aspect-[16/10] w-full bg-neutral-100"
+            style={{
+              objectFit: 'cover',
+              objectPosition: `${infra.fotoCropX ?? 50}% ${infra.fotoCropY ?? 50}%`,
+              transform: `scale(${infra.fotoCropZoom ?? 1})`,
+            }}
             loading="lazy"
           />
         ) : (
